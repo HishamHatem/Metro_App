@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:metro/second_page.dart';
-import 'package:metro/stations.dart';
+import 'package:metro/ride.dart';
 
 class FirstPage extends StatelessWidget {
   FirstPage({super.key});
@@ -10,6 +10,13 @@ class FirstPage extends StatelessWidget {
   final cont_2 = TextEditingController();
   var firstStation = ''.obs;
   var secondStation = ''.obs;
+
+  var ride = Ride(firstStation: '', secondStation: '');
+  var count = 0.obs;
+  var time = 0.obs;
+  var ticket = 0.obs;
+  var nearestStation = ''.obs;
+
   var enabled_1 = false.obs;
   var enabled_2 = false.obs;
   var enabled_3 = false.obs;
@@ -104,6 +111,7 @@ class FirstPage extends StatelessWidget {
     "boulak el dakrour",
   ];
 
+  // Don't forget to add Dispose function to clean up the controllers
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -156,18 +164,54 @@ class FirstPage extends StatelessWidget {
                   onPressed: (enabled_1.value && enabled_2.value)
                       ? () {
                           enabled_3.value = true;
-                          //time
-                          //count
-                          //ticket
-                          //nearest station
-                          //calculation
+                          ride = Ride(
+                            firstStation: firstStation.value,
+                            secondStation: secondStation.value,
+                          );
 
-                          //take inputs from user
-                          // firstStation.value = cont_1.text;
-                          // secondStation.value = cont_2.text;
+                          time.value =
+                              11; // Example time, replace with actual logic
+                          count.value =
+                              2; // Example count, replace with actual logic
+                          ticket.value =
+                              5; // Example ticket price, replace with actual logic
+                          nearestStation.value =
+                              'helwan'; // Example nearest station, replace with actual logic
+                          // this is the right code but after implementing the data of all stations
+
+                          // var paths = ride.findPaths(
+                          //   ride.getListOfNamesAndLines,
+                          //   firstStation.value,
+                          //   secondStation.value,
+                          // );
+                          // if (paths.isNotEmpty) {
+                          //   time.value = ride.getTime;
+                          //   count.value = ride.getCount;
+                          //   ticket.value = ride.getTicket;
+                          //   // in the near station u must check if it's really near to user or not by location
+                          //   //it's not just the first station in the path
+                          //   //and the check will happen here not in the Ride class
+                          //   nearestStation.value = ride.getNearestStation;
+                          // } else {
+                          //   Get.snackbar(
+                          //     'Error',
+                          //     'No path found between ${firstStation.value} and ${secondStation.value}',
+                          //     snackPosition: SnackPosition.BOTTOM,
+                          //   );
+                          // }
                         }
                       : null,
                   child: Text('show'),
+                );
+              }),
+              Obx(() {
+                return Column(
+                  children: [
+                    Text('Time: ${time}'),
+                    Text('Count: ${count}'),
+                    Text('Ticket: ${ticket}'),
+                    Text('Nearest Station: ${nearestStation}'),
+                  ],
                 );
               }),
               // Obx(() {  // will show the data
