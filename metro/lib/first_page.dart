@@ -115,6 +115,7 @@ class FirstPage extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
+            spacing: 16,
             children: [
               DropdownMenu<String>(
                 controller: cont_1,
