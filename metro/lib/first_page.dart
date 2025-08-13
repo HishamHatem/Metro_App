@@ -268,35 +268,66 @@ class FirstPage extends StatelessWidget {
 
             // Row(
             //   children: [
-            //     TextField(
-            //       controller: destinationController,
-            //     )
+            //     Container(
+            //       width: ,
+            //       child: TextField(
+            //         controller: destinationController,
+            //         decoration: InputDecoration(
+            //           labelText: 'Enter your Destination',
+            //           border: OutlineInputBorder(),
+            //         ),
+            //         onChanged: (String? x) {
+            //           enabled_4.value = x != null && x.isNotEmpty;
+            //         },
+            //       ),
+            //     ),
             //   ],
             // ),
+            // Obx(() {
+            //   return ElevatedButton(
+            //     onPressed: enabled_4.value
+            //         ? () {
+            //       // find the nearest station to the destination using geocoding
+            //     }
+            //         : null,
+            //     child: Text('Show'),
+            //   );
+            // }),
 
-            // ListTile(
-            //   leading:
-            //     TextField(
-            //       controller: cont_3,
-            //       decoration: InputDecoration(
-            //         labelText: 'Enter your Destination',
-            //         border: OutlineInputBorder(),
-            //       ),
-            //       onChanged: (String? x) {
-            //         enabled_4.value = x != null && x.isNotEmpty;
-            //       },
-            //     ),
-            //     title: Obx(() {
-            //       return ElevatedButton(
-            //         onPressed: enabled_4.value
-            //             ? () {
-            //                 // find the nearest station to the destination using geocoding
-            //               }
-            //             : null,
-            //         child: Text('Show'),
-            //       );
-            //     }),
-            // ),
+            ListTile(
+              title: Row(
+                children: [
+                  Flexible(
+                    flex: 2, // takes 2 parts of the available space
+                    child: TextField(
+                      controller: destinationController,
+                      decoration: InputDecoration(
+                        labelText: 'Enter your Destination',
+                        border: OutlineInputBorder(),
+                      ),
+                      onChanged: (String? x) {
+                        enabled_4.value = x != null && x.isNotEmpty;
+                      },
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  Flexible(
+                    flex: 1, // takes 1 part of the space
+                    child: Obx(() {
+                      return ElevatedButton(
+                        onPressed: enabled_4.value
+                            ? () {
+                          // find the nearest station
+                        }
+                            : null,
+                        child: Text('Show'),
+                      );
+                    }),
+                  ),
+                ],
+              ),
+            )
+
 
             // Obx(() {  // will show the data
             //   return Column(
