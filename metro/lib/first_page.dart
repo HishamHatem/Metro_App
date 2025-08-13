@@ -7,9 +7,9 @@ import 'package:metro/ride.dart';
 class FirstPage extends StatelessWidget {
   FirstPage({super.key});
 
-  final cont_1 = TextEditingController();
-  final cont_2 = TextEditingController();
-  final cont_3 = TextEditingController();
+  final startStationController = TextEditingController();
+  final endStationController = TextEditingController();
+  final destinationController = TextEditingController();
   var firstStation = ''.obs;
   var secondStation = ''.obs;
 
@@ -19,8 +19,8 @@ class FirstPage extends StatelessWidget {
   var ticket = 0.obs;
   var nearestStation = ''.obs;
 
-  var enabled_1 = false.obs;
-  var enabled_2 = false.obs;
+  var showButtonEnable1 = false.obs;
+  var showButtonEnable2 = false.obs;
   var enabled_3 = false.obs;
   var enabled_4 = false.obs;
 
@@ -119,172 +119,194 @@ class FirstPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('hello for your Metro Guide'),
+        title: Text('Metro Guide'),
         centerTitle: true,
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            spacing: 16,
-            children: [
-              // use kisttile for each dropdownmenu
-              DropdownMenu<String>(
-                controller: cont_1,
-                hintText: 'please select first station',
-                width: double.infinity,
-                enableSearch: true,
-                enableFilter: true,
-                requestFocusOnTap: true,
-                dropdownMenuEntries: [
-                  for (var station in stationNames)
-                    DropdownMenuEntry(value: station, label: station),
-                ],
-                onSelected: (String? text) {
-                  firstStation.value = cont_1.text;
-                  enabled_1.value = cont_1.text.isNotEmpty;
-                },
-              ),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          spacing: 16,
+          children: [
+            // use ListTile for each DropdownMenu
+            DropdownMenu<String>(
+              controller: startStationController,
+              hintText: 'please select first station',
+              width: double.infinity,
+              enableSearch: true,
+              enableFilter: true,
+              requestFocusOnTap: true,
+              dropdownMenuEntries: [
+                for (var station in stationNames)
+                  DropdownMenuEntry(value: station, label: station),
+              ],
+              onSelected: (String? text) {
+                firstStation.value = startStationController.text;
+                showButtonEnable1.value = startStationController.text.isNotEmpty;
+              },
+            ),
 
-              DropdownMenu<String>(
-                controller: cont_2,
-                hintText: 'please select second station',
-                width: double.infinity,
-                enableSearch: true,
-                enableFilter: true,
-                requestFocusOnTap: true,
-                dropdownMenuEntries: [
-                  for (var station in stationNames)
-                    DropdownMenuEntry(value: station, label: station),
-                ],
-                onSelected: (String? text) {
-                  secondStation.value = cont_1.text;
-                  enabled_2.value = cont_1.text.isNotEmpty;
-                },
-              ),
+            DropdownMenu<String>(
+              controller: endStationController,
+              hintText: 'please select second station',
+              width: double.infinity,
+              enableSearch: true,
+              enableFilter: true,
+              requestFocusOnTap: true,
+              dropdownMenuEntries: [
+                for (var station in stationNames)
+                  DropdownMenuEntry(value: station, label: station),
+              ],
+              onSelected: (String? text) {
+                secondStation.value = startStationController.text;
+                showButtonEnable2.value = startStationController.text.isNotEmpty;
+              },
+            ),
 
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Obx(() {
-                    return ElevatedButton(
-                      onPressed: (enabled_1.value && enabled_2.value)
-                          ? () {
-                              enabled_3.value = true;
-                              ride = Ride(
-                                firstStation: firstStation.value,
-                                secondStation: secondStation.value,
-                              );
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Obx(() {
+                  return ElevatedButton(
+                    onPressed: (showButtonEnable1.value && showButtonEnable2.value)
+                        ? () {
+                            enabled_3.value = true;
+                            ride = Ride(
+                              firstStation: firstStation.value,
+                              secondStation: secondStation.value,
+                            );
 
-                              time.value =
-                                  11; // Example time, replace with actual logic
-                              count.value =
-                                  2; // Example count, replace with actual logic
-                              ticket.value =
-                                  5; // Example ticket price, replace with actual logic
-                              nearestStation.value =
-                                  'helwan'; // Example nearest station, replace with actual logic
-                              // this is the right code but after implementing the data of all stations
+                            time.value = 11; // Example time, replace with actual logic
+                            count.value = 2; // Example count, replace with actual logic
+                            ticket.value = 5; // Example ticket price, replace with actual logic
+                            nearestStation.value = 'helwan'; // Example nearest station, replace with actual logic
+                            // this is the right code but after implementing the data of all stations
 
-                              // var paths = ride.findPaths(
-                              //   ride.getListOfNamesAndLines,
-                              //   firstStation.value,
-                              //   secondStation.value,
-                              // );
-                              // if (paths.isNotEmpty) {
-                              //   time.value = ride.getTime;
-                              //   count.value = ride.getCount;
-                              //   ticket.value = ride.getTicket;
-                              //   // in the near station u must check if it's really near to user or not by location
-                              //   //it's not just the first station in the path
-                              //   //and the check will happen here not in the Ride class
-                              //   nearestStation.value = ride.getNearestStation;
-                              // } else {
-                              //   Get.snackbar(
-                              //     'Error',
-                              //     'No path found between ${firstStation.value} and ${secondStation.value}',
-                              //     snackPosition: SnackPosition.BOTTOM,
-                              //   );
-                              // }
-                            }
-                          : null,
-                      child: Text('show'),
-                    );
-                  }),
-                  ElevatedButton(
-                    onPressed: () {
-                      // will change the first drop down to the nearest station to the user
-                    },
-                    child: Text('Nearest Station'),
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Obx(() {
-                    return Align(
-                      alignment: Alignment.centerLeft,
-                      child: Column(
-                        children: [
-                          Text('Time: ${time}'),
-                          Text('Count: ${count}'),
-                          Text('Ticket: ${ticket}'),
-                          Text('Nearest Station: ${nearestStation}'),
-                        ],
-                      ),
-                    );
-                  }),
-                  Align(
-                    alignment: Alignment.center,
-                    child: Obx(() {
-                      return ElevatedButton(
-                        onPressed: enabled_3.value
-                            ? () {
-                                Get.to(() => const SecondPage());
-                              }
-                            : null,
-                        child: Text('more...'),
-                      );
-                    }),
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  TextField(
-                    controller: cont_3,
-                    decoration: InputDecoration(
-                      labelText: 'Enter your Destination',
-                      border: OutlineInputBorder(),
+                            // var paths = ride.findPaths(
+                            //   ride.getListOfNamesAndLines,
+                            //   firstStation.value,
+                            //   secondStation.value,
+                            // );
+                            // if (paths.isNotEmpty) {
+                            //   time.value = ride.getTime;
+                            //   count.value = ride.getCount;
+                            //   ticket.value = ride.getTicket;
+                            //   // in the near station u must check if it's really near to user or not by location
+                            //   //it's not just the first station in the path
+                            //   //and the check will happen here not in the Ride class
+                            //   nearestStation.value = ride.getNearestStation;
+                            // } else {
+                            //   Get.snackbar(
+                            //     'Error',
+                            //     'No path found between ${firstStation.value} and ${secondStation.value}',
+                            //     snackPosition: SnackPosition.BOTTOM,
+                            //   );
+                            // }
+                          }
+                        : null,
+                    child: Text('show'),
+                  );
+                }),
+                ElevatedButton(
+                  onPressed: () {
+                    // will change the first drop down to the nearest station to the user
+                  },
+                  child: Text('Nearest Station'),
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Obx(() {
+                  return Align(
+                    alignment: Alignment.centerLeft,
+                    child: Column(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Colors.grey,
+                              width: 3,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                                  'Time: ${time}\n'
+                                  'Count: ${count}\n'
+                                  'Ticket: ${ticket}\n'
+                                  'Nearest Station: ${nearestStation}',
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    onChanged: (String? x) {
-                      enabled_4.value = x != null && x.isNotEmpty;
-                    },
-                  ),
-                  Obx(() {
+                  );
+                }),
+                Align(
+                  alignment: Alignment.center,
+                  child: Obx(() {
                     return ElevatedButton(
-                      onPressed: enabled_4.value
+                      onPressed: enabled_3.value
                           ? () {
-                              // find the nearest station to the destination using geocoding
+                              Get.to(() => const SecondPage());
                             }
                           : null,
-                      child: Text('Show'),
+                      child: Row(
+                        spacing: 8,
+                        children: [
+                          Text('more'),
+                          Icon(Icons.arrow_circle_right_outlined),
+                        ],
+                      )
                     );
                   }),
-                ],
-              ),
+                ),
+              ],
+            ),
 
-              // Obx(() {  // will show the data
-              //   return Column(
-              //     children: [
-              //       Text('data: ${firstStation.value}'),
-              //       Text('data: ${secondStation.value}'),
-              //     ],
-              //   );
-              // }),
-            ],
-          ),
+            // Row(
+            //   children: [
+            //     TextField(
+            //       controller: destinationController,
+            //     )
+            //   ],
+            // ),
+
+            // ListTile(
+            //   leading:
+            //     TextField(
+            //       controller: cont_3,
+            //       decoration: InputDecoration(
+            //         labelText: 'Enter your Destination',
+            //         border: OutlineInputBorder(),
+            //       ),
+            //       onChanged: (String? x) {
+            //         enabled_4.value = x != null && x.isNotEmpty;
+            //       },
+            //     ),
+            //     title: Obx(() {
+            //       return ElevatedButton(
+            //         onPressed: enabled_4.value
+            //             ? () {
+            //                 // find the nearest station to the destination using geocoding
+            //               }
+            //             : null,
+            //         child: Text('Show'),
+            //       );
+            //     }),
+            // ),
+
+            // Obx(() {  // will show the data
+            //   return Column(
+            //     children: [
+            //       Text('data: ${firstStation.value}'),
+            //       Text('data: ${secondStation.value}'),
+            //     ],
+            //   );
+            // }),
+          ],
         ),
       ),
     );
