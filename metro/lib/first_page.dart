@@ -4,29 +4,45 @@ import 'package:get/get.dart';
 import 'package:metro/second_page.dart';
 import 'package:metro/ride.dart';
 
-class FirstPage extends StatelessWidget {
+class FirstPage extends StatefulWidget {
   FirstPage({super.key});
 
+  @override
+  State<FirstPage> createState() => _FirstPageState();
+}
+
+class _FirstPageState extends State<FirstPage> {
   final startStationController = TextEditingController();
+
   final endStationController = TextEditingController();
+
   final destinationController = TextEditingController();
+
   var firstStation = ''.obs;
+
   var secondStation = ''.obs;
 
   var ride = Ride(firstStation: '', secondStation: '');
+
+  // List<List<String>> paths = [['a','b'],['c','d'],['e','f'],['g','h']];
+
   var count = 0.obs;
+
   var time = 0.obs;
+
   var ticket = 0.obs;
+
   var nearestStation = ''.obs;
 
   var showButtonEnable1 = false.obs;
+
   var showButtonEnable2 = false.obs;
+
   var enabled_3 = false.obs;
+
   var enabled_4 = false.obs;
 
   // final station = <Stations> [];
-  // station.add(Stations(name: 'Station A', line: 'Line 1'));
-  // All unique station names from Metro lines 1, 2, and 3
   final stationNames = [
     "helwan",
     "ain helwan",
@@ -113,6 +129,15 @@ class FirstPage extends StatelessWidget {
     "gamet el dowal",
     "boulak el dakrour",
   ];
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    startStationController.dispose(); // Dispose the start station controller
+    endStationController.dispose(); // Dispose the end station controller
+    destinationController.dispose(); // Dispose the destination controller
+    super.dispose();
+  }
 
   // Don't forget to add Dispose function to clean up the controllers
   @override
@@ -250,7 +275,7 @@ class FirstPage extends StatelessWidget {
                     return ElevatedButton(
                       onPressed: enabled_3.value
                           ? () {
-                              Get.to(() => const SecondPage());
+                              Get.to(SecondPage(), arguments: ride, transition: Transition.rightToLeft);
                             }
                           : null,
                       child: Row(
@@ -296,14 +321,14 @@ class FirstPage extends StatelessWidget {
 
             ListTile(
               title: Row(
+                spacing: 8,
                 children: [
                   Flexible(
-                    flex: 2, // takes 2 parts of the available space
+                    flex: 1, // takes 2 parts of the available space
                     child: TextField(
                       controller: destinationController,
                       decoration: InputDecoration(
                         labelText: 'Enter your Destination',
-                        border: OutlineInputBorder(),
                       ),
                       onChanged: (String? x) {
                         enabled_4.value = x != null && x.isNotEmpty;
