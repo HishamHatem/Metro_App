@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:metro/first_page.dart';
+import 'package:metro/second_page.dart';
 
 void main() {
   runApp(const MyApp());
