@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:metro/second_page.dart';
 import 'package:metro/ride.dart';
+import 'package:geolocator/geolocator.dart';
 
 class FirstPage extends StatefulWidget {
   FirstPage({super.key});
@@ -143,10 +145,7 @@ class _FirstPageState extends State<FirstPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Metro Guide'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text('Metro Guide'), centerTitle: true),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
@@ -166,7 +165,8 @@ class _FirstPageState extends State<FirstPage> {
               ],
               onSelected: (String? text) {
                 firstStation.value = startStationController.text;
-                showButtonEnable1.value = startStationController.text.isNotEmpty;
+                showButtonEnable1.value =
+                    startStationController.text.isNotEmpty;
               },
             ),
 
@@ -183,7 +183,8 @@ class _FirstPageState extends State<FirstPage> {
               ],
               onSelected: (String? text) {
                 secondStation.value = startStationController.text;
-                showButtonEnable2.value = startStationController.text.isNotEmpty;
+                showButtonEnable2.value =
+                    startStationController.text.isNotEmpty;
               },
             ),
 
@@ -192,7 +193,8 @@ class _FirstPageState extends State<FirstPage> {
               children: [
                 Obx(() {
                   return ElevatedButton(
-                    onPressed: (showButtonEnable1.value && showButtonEnable2.value)
+                    onPressed:
+                        (showButtonEnable1.value && showButtonEnable2.value)
                         ? () {
                             enabled_3.value = true;
                             ride = Ride(
@@ -200,10 +202,14 @@ class _FirstPageState extends State<FirstPage> {
                               secondStation: secondStation.value,
                             );
 
-                            time.value = 11; // Example time, replace with actual logic
-                            count.value = 2; // Example count, replace with actual logic
-                            ticket.value = 5; // Example ticket price, replace with actual logic
-                            nearestStation.value = 'helwan'; // Example nearest station, replace with actual logic
+                            time.value =
+                                11; // Example time, replace with actual logic
+                            count.value =
+                                2; // Example count, replace with actual logic
+                            ticket.value =
+                                5; // Example ticket price, replace with actual logic
+                            nearestStation.value =
+                                'helwan'; // Example nearest station, replace with actual logic
                             // this is the right code but after implementing the data of all stations
 
                             // var paths = ride.findPaths(
@@ -234,6 +240,7 @@ class _FirstPageState extends State<FirstPage> {
                 ElevatedButton(
                   onPressed: () {
                     // will change the first drop down to the nearest station to the user
+                    findNearStation();
                   },
                   child: Text('Nearest Station'),
                 ),
@@ -249,19 +256,16 @@ class _FirstPageState extends State<FirstPage> {
                       children: [
                         Container(
                           decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Colors.grey,
-                              width: 3,
-                            ),
+                            border: Border.all(color: Colors.grey, width: 3),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
-                                  'Time: ${time}\n'
-                                  'Count: ${count}\n'
-                                  'Ticket: ${ticket}\n'
-                                  'Nearest Station: ${nearestStation}',
+                              'Time: ${time}\n'
+                              'Count: ${count}\n'
+                              'Ticket: ${ticket}\n'
+                              'Nearest Station: ${nearestStation}',
                             ),
                           ),
                         ),
@@ -275,7 +279,11 @@ class _FirstPageState extends State<FirstPage> {
                     return ElevatedButton(
                       onPressed: enabled_3.value
                           ? () {
-                              Get.to(SecondPage(), arguments: ride, transition: Transition.rightToLeft);
+                              Get.to(
+                                SecondPage(),
+                                arguments: ride,
+                                transition: Transition.rightToLeft,
+                              );
                             }
                           : null,
                       child: Row(
@@ -284,7 +292,7 @@ class _FirstPageState extends State<FirstPage> {
                           Text('more'),
                           Icon(Icons.arrow_circle_right_outlined),
                         ],
-                      )
+                      ),
                     );
                   }),
                 ),
@@ -318,7 +326,6 @@ class _FirstPageState extends State<FirstPage> {
             //     child: Text('Show'),
             //   );
             // }),
-
             ListTile(
               title: Row(
                 spacing: 8,
@@ -342,8 +349,8 @@ class _FirstPageState extends State<FirstPage> {
                       return ElevatedButton(
                         onPressed: enabled_4.value
                             ? () {
-                          // find the nearest station
-                        }
+                                // find the nearest station
+                              }
                             : null,
                         child: Text('Show'),
                       );
@@ -351,8 +358,7 @@ class _FirstPageState extends State<FirstPage> {
                   ),
                 ],
               ),
-            )
-
+            ),
 
             // Obx(() {  // will show the data
             //   return Column(
@@ -366,5 +372,79 @@ class _FirstPageState extends State<FirstPage> {
         ),
       ),
     );
+  }
+
+  /// Determine the current position of the device.
+  ///
+  /// When the location services are not enabled or permissions
+  /// are denied the `Future` will return an error.
+  Future<Position> _determinePosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Test if location services are enabled.
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      // Location services are not enabled don't continue
+      // accessing the position and request users of the
+      // App to enable the location services.
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        // Permissions are denied, next time you could try
+        // requesting permissions again (this is also where
+        // Android's shouldShowRequestPermissionRationale
+        // returned true. According to Android guidelines
+        // your App should show an explanatory UI now.
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      // Permissions are denied forever, handle appropriately.
+      return Future.error(
+        'Location permissions are permanently denied, we cannot request permissions.',
+      );
+    }
+
+    // When we reach here, permissions are granted and we can
+    // continue accessing the position of the device.
+    return await Geolocator.getCurrentPosition();
+  }
+
+  Future<String> findNearStation() async {
+    //1- get current location
+    final pos = await Geolocator.getCurrentPosition();
+    //2- loop on all station and find the min distance
+    double minDistance = double.infinity;
+    double dis = 0.0;
+    String nearestStation = '';
+    for (var station in stationNames) {
+      //find min distance with function
+      final locations = await locationFromAddress(station);
+      if (locations.isNotEmpty) {
+        dis = Geolocator.distanceBetween(
+          pos.latitude,
+          pos.longitude,
+          // You need to replace these with actual coordinates of the stations
+          // For example, you can use a map or a database to get the coordinates
+          locations.first.latitude, // Replace with station latitude
+          locations.first.longitude, // Replace with station longitude
+        );
+      }
+      if (dis < minDistance) {
+        minDistance = dis;
+        nearestStation = station;
+      }
+      // final places = await placemarkFromCoordinates(latitude, longitude);
+      //nearestStation = places.first.name;
+    }
+    startStationController.text = nearestStation;
+    print(nearestStation);
+    return nearestStation;
   }
 }
