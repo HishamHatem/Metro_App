@@ -453,7 +453,7 @@ class _FirstPageState extends State<FirstPage> {
       // appBar: AppBar(
       //   title: Column(
       //     children: [
-      //      
+      //
       //     ],
       //   ),
       //   centerTitle: true,
@@ -465,15 +465,12 @@ class _FirstPageState extends State<FirstPage> {
             spacing: 16,
             children: [
               SizedBox(
-                  height: 200,
-                  child: Image.asset('assets/images/background/metro.png')
+                height: 200,
+                child: Image.asset('assets/images/background/metro.png'),
               ),
               Text(
                 'Metro Guide',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               // use ListTile for each DropdownMenu
               DropdownMenu<String>(
@@ -493,7 +490,7 @@ class _FirstPageState extends State<FirstPage> {
                       startStationController.text.isNotEmpty;
                 },
               ),
-        
+
               DropdownMenu<String>(
                 controller: endStationController,
                 hintText: 'please select second station',
@@ -507,10 +504,11 @@ class _FirstPageState extends State<FirstPage> {
                 ],
                 onSelected: (String? text) {
                   secondStation.value = endStationController.text;
-                  showButtonEnable2.value = endStationController.text.isNotEmpty;
+                  showButtonEnable2.value =
+                      endStationController.text.isNotEmpty;
                 },
               ),
-        
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -524,16 +522,18 @@ class _FirstPageState extends State<FirstPage> {
                                 firstStation: firstStation.value,
                                 secondStation: secondStation.value,
                               );
-        
+
                               ride.findPaths(
                                 firstStation.value,
                                 secondStation.value,
                                 graphs,
                               );
-        
-                              ride.printPaths(ride.getAllPaths); // Print all paths for debugging
+
+                              ride.printPaths(
+                                ride.getAllPaths,
+                              ); // Print all paths for debugging
                               paths = ride.getAllPaths;
-        
+
                               time.value = ride
                                   .getTime; // Example time, replace with actual logic
                               count.value = ride
@@ -543,7 +543,7 @@ class _FirstPageState extends State<FirstPage> {
                               nearestStation.value = ride
                                   .getNearestStation; // Example nearest station, replace with actual logic
                               // this is the right code but after implementing the data of all stations
-        
+
                               // var paths = ride.findPaths(
                               //   ride.getListOfNamesAndLines,
                               //   firstStation.value,
@@ -630,7 +630,7 @@ class _FirstPageState extends State<FirstPage> {
                   ),
                 ],
               ),
-        
+
               // Row(
               //   children: [
               //     Container(
@@ -691,7 +691,7 @@ class _FirstPageState extends State<FirstPage> {
                   ],
                 ),
               ),
-        
+
               // Obx(() {  // will show the data
               //   return Column(
               //     children: [
