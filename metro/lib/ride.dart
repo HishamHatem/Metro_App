@@ -5,7 +5,7 @@ class Ride {
   late final String secondStation;
   var listOfNamesAndLines = <String, List<String>>{};
   List<List<String>> allPaths = [];
-  var time = '';
+  var time = 0;
   var count = 4;
   var ticket = 0;
   var nearestStation = '';
@@ -24,7 +24,7 @@ class Ride {
     return listOfNamesAndLines;
   }
 
-  String get getTime {
+  int get getTime {
     return time;
   }
 
@@ -56,7 +56,7 @@ class Ride {
     listOfNamesAndLines = namesAndLines;
   }
 
-  set setTime(String t) {
+  set setTime(int t) {
     time = t;
   }
 
