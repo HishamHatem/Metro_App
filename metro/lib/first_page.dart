@@ -529,9 +529,6 @@ class _FirstPageState extends State<FirstPage> {
                                 graphs,
                               );
 
-                              ride.printPaths(
-                                ride.getAllPaths,
-                              ); // Print all paths for debugging
                               paths = ride.getAllPaths;
 
                               time.value = ride

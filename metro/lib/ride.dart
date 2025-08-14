@@ -5,8 +5,8 @@ class Ride {
   late final String secondStation;
   var listOfNamesAndLines = <String, List<String>>{};
   List<List<String>> allPaths = [];
-  var time = '';
-  var count = 4;
+  var time = 0;
+  var count = 0;
   var ticket = 0;
   var nearestStation = '';
 
