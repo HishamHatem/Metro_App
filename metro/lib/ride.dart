@@ -83,32 +83,28 @@ class Ride {
     // and storing it in a suitable data structure.
   }
   // find the possible paths and the other data required (time, count, ticket, nearest station)
-  void findPaths(
-    Map<String, List<String>> jsonData,
-    String startStation,
-    String endStation,
-  ) {
+  void findPaths(String start, String end, Map<String, List<String>> graph) {
     Queue<List<String>> queue = Queue<List<String>>();
     List<List<String>> allPaths = [];
 
     // Get the starting line for the start station
-    String startLine = jsonData[startStation]![0];
+    String startLine = graph[start]![0];
 
     // Start with the station and its line
-    queue.add([startStation, startLine]);
+    queue.add([start, startLine]);
 
     while (queue.isNotEmpty) {
       List<String> path = queue.removeFirst();
       String currentStation = path[path.length - 2]; // Last station
       // String currentLine = path[path.length - 1];    // Current line
 
-      if (currentStation == endStation) {
+      if (currentStation == end) {
         allPaths.add(path);
         continue;
       }
 
       // Get neighbors for current station
-      List<String> stationData = jsonData[currentStation] ?? [];
+      List<String> stationData = graph[currentStation] ?? [];
       if (stationData.isEmpty) continue;
 
       // Process neighbors (pairs: station, line, station, line, ...)
@@ -141,17 +137,17 @@ class Ride {
     this.allPaths = allPaths;
   }
 
-  String printSinglePath(int index, List<List<String>> paths) {
+  String printSinglePath(int index) {
     String result = "";
-    if (paths.isEmpty) {
+    if (allPaths.isEmpty) {
       return "No path found!";
     }
 
     // for (int pathIndex = 0; pathIndex < paths.length; pathIndex++) {
-    var path = paths[index];
+    var path = allPaths[index];
 
     // Start station
-    result += "\nYou will start from ${path[0]} in ${path[1]}";
+    result += "You will start from ${path[0]} in ${path[1]}";
 
     String previousLine = path[1]; // First line
     int totalMinutes = 0;
@@ -186,87 +182,4 @@ class Ride {
     // }
     return result;
   }
-
-  // String printPaths(List<List<String>> paths) {
-  //   String result = "";
-  //   if (paths.isEmpty) {
-  //     return "No path found!";
-  //   }
-  //   int shortest_lines = 100;
-  //   int shortest_path_index = 0;
-  //   for (int pathIndex = 0; pathIndex < paths.length; pathIndex++) {
-  //     var path = paths[pathIndex];
-  //
-  //     if (pathIndex != 0) {
-  //       result += "\nPath ${pathIndex + 1}:";
-  //     } else {
-  //       result += "The shortest path according to number of stations is:";
-  //     }
-  //
-  //     // Start station
-  //     result += "\nYou will start from ${path[0]} in ${path[1]}";
-  //
-  //     String previousLine = path[1]; // First line
-  //     int totalMinutes = 0;
-  //     int stationCount = 1; // Starting station counts
-  //     int linesCount = 1; // Starting line counts
-  //
-  //     // Process the path
-  //     for (int i = 2; i < path.length; i += 2) {
-  //       if (i + 1 < path.length) {
-  //         String currentStation = path[i];
-  //         String currentLine = path[i + 1];
-  //
-  //         stationCount++;
-  //
-  //         if (previousLine != currentLine) {
-  //           // Line change - transfer
-  //           result += "\nContinue to $currentStation You will change from $previousLine to $currentLine";
-  //           totalMinutes += 5; // Transfer takes 5 minutes
-  //           linesCount++;
-  //         } else {
-  //           // Same line
-  //           result += "\nContinue to $currentStation in the same line ";
-  //           totalMinutes += 2; // Normal travel takes 2 minutes
-  //         }
-  //
-  //         previousLine = currentLine;
-  //       }
-  //     }
-  //
-  //     result += "\nYou arrived to your destination ${path[path.length - 2]}";
-  //
-  //     // Calculate ticket cost
-  //     int ticket;
-  //     if (stationCount <= 9) {
-  //       ticket = 8;
-  //     } else if (stationCount > 23) {
-  //       ticket = 20;
-  //     } else {
-  //       ticket = 10 + 5 * ((stationCount - 9) ~/ 7);
-  //     }
-  //
-  //     // Display summary
-  //     // print("\nTotal stations: $stationCount, Ticket cost: $ticket L.E.");
-  //
-  //     if (totalMinutes >= 60) {
-  //       int hours = totalMinutes ~/ 60;
-  //       int minutes = totalMinutes % 60;
-  //       print("Average time: $hours hours and $minutes minutes");
-  //     } else {
-  //       print("Average time: $totalMinutes minutes");
-  //     }
-  //
-  //     if(linesCount < shortest_lines) {
-  //       shortest_lines = linesCount;
-  //       shortest_path_index = pathIndex;
-  //     }
-  //
-  //     if (pathIndex < paths.length - 1) {
-  //       print("\n" + "="*50);
-  //     }
-  //   }
-  //   print("\nThe shortest path according to number of lines is Path ${shortest_path_index + 1}, and has ${shortest_lines - 1} transitions.");
-  //   return result;
-  // }
 }

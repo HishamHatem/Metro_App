@@ -14,35 +14,23 @@ class SecondPage extends StatelessWidget {
         title: Text('All Routes'),
       ),
       body: ListView.builder(
-        itemCount: (ride.getCount/2).ceil(),
+        itemCount: ride.getAllPaths.length,
         padding: EdgeInsets.all(10),
         itemBuilder: (BuildContext context, int index) {
-          return Row(
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Column(
-                children: [
-                  Text(
-                    'Route ${index+1}',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.grey,
-                          width: 3,
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text('${ride.printSinglePath(index, ride.getAllPaths)}'),
-                      ),
-                    ),
-                  ],
-                )
+              Text(
+                'Route ${index+1}',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text('${ride.printSinglePath(index)}'),
+                ),
               ],
             );
           },
