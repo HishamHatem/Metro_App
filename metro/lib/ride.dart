@@ -76,12 +76,6 @@ class Ride {
     allPaths = paths;
   }
 
-  // read json file
-  void readJson() {
-    // Implement the logic to read a JSON file
-    // This could involve using the 'dart:convert' library to parse JSON data
-    // and storing it in a suitable data structure.
-  }
   // find the possible paths and the other data required (time, count, ticket, nearest station)
   void findPaths(String start, String end, Map<String, List<String>> graph) {
     Queue<List<String>> queue = Queue<List<String>>();

@@ -530,15 +530,10 @@ class _FirstPageState extends State<FirstPage> {
                               );
 
                               paths = ride.getAllPaths;
-
-                              time.value = ride
-                                  .getTime; // Example time, replace with actual logic
-                              count.value = ride
-                                  .getCount; // Example count, replace with actual logic
-                              ticket.value = ride
-                                  .getTicket; // Example ticket price, replace with actual logic
-                              nearestStation.value = ride
-                                  .getNearestStation; // Example nearest station, replace with actual logic
+                              time.value = ride.getTime; // Example time, replace with actual logic
+                              count.value = ride.getCount; // Example count, replace with actual logic
+                              ticket.value = ride.getTicket; // Example ticket price, replace with actual logic
+                              nearestStation.value = ride.getNearestStation; // Example nearest station, replace with actual logic
                               // this is the right code but after implementing the data of all stations
 
                               // var paths = ride.findPaths(
