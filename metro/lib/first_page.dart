@@ -156,7 +156,8 @@ class _FirstPageState extends State<FirstPage> {
       "tora elasmant",
       "line_1",
     ],
-    "tora elasmant": ["line_1", "elmaasara", "line_1", "kozzika", "line_1"],
+
+    ///"tora elasmant": ["line_1", "elmaasara", "line_1", "kozzika", "line_1"],
     "kozzika": ["line_1", "tora elasmant", "line_1", "tora elbalad", "line_1"],
     "tora elbalad": [
       "line_1",
@@ -487,7 +488,7 @@ class _FirstPageState extends State<FirstPage> {
                   DropdownMenuEntry(value: station, label: station),
               ],
               onSelected: (String? text) {
-                secondStation.value = startStationController.text;
+                secondStation.value = endStationController.text;
                 showButtonEnable2.value =
                     startStationController.text.isNotEmpty;
               },

@@ -5,8 +5,8 @@ class Ride {
   late final String secondStation;
   var listOfNamesAndLines = <String, List<String>>{};
   List<List<String>> allPaths = [];
-  var time = '';
-  var count = 4;
+  var time = 0;
+  var count = 0;
   var ticket = 0;
   var nearestStation = '';
 
@@ -24,7 +24,7 @@ class Ride {
     return listOfNamesAndLines;
   }
 
-  String get getTime {
+  int get getTime {
     return time;
   }
 
@@ -56,7 +56,7 @@ class Ride {
     listOfNamesAndLines = namesAndLines;
   }
 
-  set setTime(String t) {
+  set setTime(int t) {
     time = t;
   }
 
@@ -138,6 +138,27 @@ class Ride {
 
     // Sort paths by length (shortest first)
     allPaths.sort((a, b) => a.length.compareTo(b.length));
+
+    if (allPaths.isEmpty) {
+      this.nearestStation = "No path found!";
+      return;
+    } else {
+      this.time =
+          allPaths[0].length * 2; // Assuming each station takes 2 minutes
+      this.count =
+          allPaths[0].length ~/
+          2; // Each station is represented by two elements (station, line)
+      if (allPaths[0].length <= 9) {
+        this.ticket = 8;
+      } else if (allPaths[0].length > 23) {
+        this.ticket = 20;
+      } else {
+        this.ticket = 10 + 5 * ((allPaths[0].length - 9) ~/ 7);
+      }
+    }
+    for (var path in allPaths) {
+      print('path : $path');
+    }
     this.allPaths = allPaths;
   }
 
