@@ -4,22 +4,38 @@ class Ride {
   late final String firstStation;
   late final String secondStation;
   var listOfNamesAndLines = <String, List<String>>{};
-  List<List<String>> _allPaths = [];
+  List<List<String>> allPaths = [];
   var time = 0;
-  var count = 0;
+  var count = 4;
   var ticket = 0;
   var nearestStation = '';
 
   Ride({required this.firstStation, required this.secondStation});
   //getters and setters
-  String get getFirstStation => firstStation;
-  String get getSecondStation => secondStation;
-  Map<String, List<String>> get getListOfNamesAndLines => listOfNamesAndLines;
-  int get getTime => time;
-  int get getCount => count;
-  int get getTicket => ticket;
-  String get getNearestStation => nearestStation;
-  List<List<String>> get getAllPaths => _allPaths;
+  String get getFirstStation {
+    return firstStation;
+  }
+  String get getSecondStation {
+    return secondStation;
+  }
+  Map<String, List<String>> get getListOfNamesAndLines {
+    return listOfNamesAndLines;
+  }
+  int get getTime {
+    return time;
+  }
+  int get getCount {
+    return count;
+  }
+  int get getTicket {
+    return ticket;
+  }
+  String get getNearestStation {
+    return nearestStation;
+  }
+  List<List<String>> get getAllPaths {
+    return allPaths;
+  }
 
   set setFirstStation(String station) {
     firstStation = station;
@@ -50,7 +66,7 @@ class Ride {
   }
 
   set setAllPaths(List<List<String>> paths) {
-    _allPaths = paths;
+    allPaths = paths;
   }
 
   // read json file
@@ -115,7 +131,52 @@ class Ride {
 
     // Sort paths by length (shortest first)
     allPaths.sort((a, b) => a.length.compareTo(b.length));
-    _allPaths = allPaths;
+    this.allPaths = allPaths;
+  }
+
+  String printSinglePath(int index, List<List<String>> paths){
+    String result = "";
+    if (paths.isEmpty) {
+      return "No path found!";
+    }
+
+    // for (int pathIndex = 0; pathIndex < paths.length; pathIndex++) {
+      var path = paths[index];
+
+      // Start station
+      result += "\nYou will start from ${path[0]} in ${path[1]}";
+
+      String previousLine = path[1]; // First line
+      int totalMinutes = 0;
+      int stationCount = 1; // Starting station counts
+      int linesCount = 1; // Starting line counts
+
+      // Process the path
+      for (int i = 2; i < path.length; i += 2) {
+        if (i + 1 < path.length) {
+          String currentStation = path[i];
+          String currentLine = path[i + 1];
+
+          stationCount++;
+
+          if (previousLine != currentLine) {
+            // Line change - transfer
+            result += "\nContinue to $currentStation You will change from $previousLine to $currentLine";
+            totalMinutes += 5; // Transfer takes 5 minutes
+            linesCount++;
+          } else {
+            // Same line
+            result += "\nContinue to $currentStation in the same line ";
+            totalMinutes += 2; // Normal travel takes 2 minutes
+          }
+
+          previousLine = currentLine;
+        }
+      }
+
+      result += "\nYou arrived to your destination ${path[path.length - 2]}";
+    // }
+    return result;
   }
 
   String printPaths(List<List<String>> paths) {

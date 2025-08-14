@@ -13,37 +13,39 @@ class SecondPage extends StatelessWidget {
       appBar: AppBar(
         title: Text('All Routes'),
       ),
-        body: SafeArea(
-          child: ListView.builder(
-            itemCount: (ride.getCount()/2).ceil(),
-            padding: EdgeInsets.all(10),
-            itemBuilder: (BuildContext context, int index) {
-              return Row(
+      body: ListView.builder(
+        itemCount: (ride.getCount/2).ceil(),
+        padding: EdgeInsets.all(10),
+        itemBuilder: (BuildContext context, int index) {
+          return Row(
+            children: [
+              Column(
                 children: [
                   Text(
                     'Route ${index+1}',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Colors.grey,
-                        width: 3,
                       ),
-                      borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text('${ride.print}'),
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.grey,
+                          width: 3,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text('${ride.printSinglePath(index, ride.getAllPaths)}'),
+                      ),
                     ),
-                  ),
-                ],
-              );
-            },
-          ),
+                  ],
+                )
+              ],
+            );
+          },
         ),
     );
   }
