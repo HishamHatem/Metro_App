@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:metro/second_page.dart';
 import 'package:metro/ride.dart';
 import 'package:geolocator/geolocator.dart';
+import 'station.dart';
 
 class FirstPage extends StatefulWidget {
   FirstPage({super.key});
@@ -530,10 +531,14 @@ class _FirstPageState extends State<FirstPage> {
                               );
 
                               paths = ride.getAllPaths;
-                              time.value = ride.getTime; // Example time, replace with actual logic
-                              count.value = ride.getCount; // Example count, replace with actual logic
-                              ticket.value = ride.getTicket; // Example ticket price, replace with actual logic
-                              nearestStation.value = ride.getNearestStation; // Example nearest station, replace with actual logic
+                              time.value = ride
+                                  .getTime; // Example time, replace with actual logic
+                              count.value = ride
+                                  .getCount; // Example count, replace with actual logic
+                              ticket.value = ride
+                                  .getTicket; // Example ticket price, replace with actual logic
+                              nearestStation.value = ride
+                                  .getNearestStation; // Example nearest station, replace with actual logic
                               // this is the right code but after implementing the data of all stations
 
                               // var paths = ride.findPaths(
@@ -674,6 +679,7 @@ class _FirstPageState extends State<FirstPage> {
                           onPressed: enabled_4.value
                               ? () {
                                   // find the nearest station
+                                  findDestination(destinationController.text);
                                 }
                               : null,
                           child: Text('Show'),
@@ -714,7 +720,7 @@ class _FirstPageState extends State<FirstPage> {
       // accessing the position and request users of the
       // App to enable the location services.
       Get.snackbar('Error', 'Location services are disabled');
-      return ;
+      return;
     }
 
     permission = await Geolocator.checkPermission();
@@ -733,10 +739,12 @@ class _FirstPageState extends State<FirstPage> {
 
     if (permission == LocationPermission.deniedForever) {
       // Permissions are denied forever, handle appropriately.
-      Get.snackbar('Error', 'Location permissions are permanently denied, we cannot request permissions.');
-      return ;
+      Get.snackbar(
+        'Error',
+        'Location permissions are permanently denied, we cannot request permissions.',
+      );
+      return;
     }
-
   }
 
   Future<String> findNearStation() async {
@@ -747,28 +755,59 @@ class _FirstPageState extends State<FirstPage> {
     double minDistance = double.infinity;
     double distance = 0.0;
     String nearestStation = '';
-    for (var station in graphs.keys) {
+    for (var station in stationsCoordinates) {
       //find min distance with function
-      final locations = await locationFromAddress(station);
-      if (locations.isNotEmpty) {
-        distance = Geolocator.distanceBetween(
-          pos.latitude,
-          pos.longitude,
-          // You need to replace these with actual coordinates of the stations
-          // For example, you can use a map or a database to get the coordinates
-          locations.first.latitude, // Replace with station latitude
-          locations.first.longitude, // Replace with station longitude
-        );
-      }
+      distance = Geolocator.distanceBetween(
+        pos.latitude,
+        pos.longitude,
+        station.latitude,
+        station.longitude,
+      );
       if (distance < minDistance) {
         minDistance = distance;
-        nearestStation = station;
+        nearestStation = station.name;
       }
       // final places = await placemarkFromCoordinates(latitude, longitude);
       //nearestStation = places.first.name;
     }
     startStationController.text = nearestStation;
-    print(nearestStation);
+    firstStation.value = nearestStation;
+    showButtonEnable1.value = true;
+    // print(
+    //   'current position: $pos : lat: ${pos.latitude}, long: ${pos.longitude}',
+    // );
+    // print('station is: $nearestStation : lat: ');
     return nearestStation;
+  }
+
+  Future<void> findDestination(String ad) async {
+    getLocationPermission();
+
+    final loc = await locationFromAddress(ad);
+
+    double minDistance = double.infinity;
+    double distance = 0.0;
+    String nearestStation = '';
+    for (var station in stationsCoordinates) {
+      //find min distance with function
+      distance = Geolocator.distanceBetween(
+        loc.first.latitude,
+        loc.first.longitude,
+        station.latitude,
+        station.longitude,
+      );
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearestStation = station.name;
+      }
+      // final places = await placemarkFromCoordinates(latitude, longitude);
+      //nearestStation = places.first.name;
+    }
+    endStationController.text = nearestStation;
+    secondStation.value = nearestStation;
+    showButtonEnable2.value = endStationController.text.isNotEmpty;
+    // print(
+    //   'station is: $nearestStation : lat: ${pos.latitude}, long: ${pos.longitude}',
+    // );
   }
 }
