@@ -8,7 +8,7 @@ class Ride {
   var time = 0;
   var count = 0;
   var ticket = 0;
-  var nearestStation = '';
+  // var nearestStation = '';
 
   Ride({required this.firstStation, required this.secondStation});
   //getters and setters
@@ -36,9 +36,9 @@ class Ride {
     return ticket;
   }
 
-  String get getNearestStation {
-    return nearestStation;
-  }
+  // String get getNearestStation {
+  //   return nearestStation;
+  // }
 
   List<List<String>> get getAllPaths {
     return allPaths;
@@ -68,9 +68,9 @@ class Ride {
     ticket = t;
   }
 
-  set setNearestStation(String station) {
-    nearestStation = station;
-  }
+  // set setNearestStation(String station) {
+  //   nearestStation = station;
+  // }
 
   set setAllPaths(List<List<String>> paths) {
     allPaths = paths;
@@ -130,14 +130,13 @@ class Ride {
     allPaths.sort((a, b) => a.length.compareTo(b.length));
 
     if (allPaths.isEmpty) {
-      this.nearestStation = "No path found!";
+      // this.nearestStation = "No path found!";
       return;
     } else {
       this.count =
           allPaths[0].length ~/
-              2; // Each station is represented by two elements (station, line)
-      this.time =
-          this.count * 2; // Assuming each station takes 2 minutes
+          2; // Each station is represented by two elements (station, line)
+      this.time = this.count * 2; // Assuming each station takes 2 minutes
       if (this.count <= 9) {
         this.ticket = 8;
       } else if (this.count > 23) {

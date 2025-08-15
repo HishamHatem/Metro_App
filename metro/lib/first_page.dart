@@ -15,7 +15,6 @@ class FirstPage extends StatefulWidget {
 }
 
 class _FirstPageState extends State<FirstPage> {
-
   final startStationController = TextEditingController();
   final endStationController = TextEditingController();
   final destinationController = TextEditingController();
@@ -375,6 +374,11 @@ class _FirstPageState extends State<FirstPage> {
                   for (var station in graphs.keys)
                     DropdownMenuEntry(value: station, label: station),
                 ],
+                menuStyle: MenuStyle(
+                  maximumSize: MaterialStateProperty.all<Size>(
+                    Size(300, 400),
+                  ), // width, height
+                ),
                 onSelected: (String? text) {
                   firstStation.value = startStationController.text;
                   showButtonEnable1.value =
@@ -393,6 +397,11 @@ class _FirstPageState extends State<FirstPage> {
                   for (var station in graphs.keys)
                     DropdownMenuEntry(value: station, label: station),
                 ],
+                menuStyle: MenuStyle(
+                  maximumSize: MaterialStateProperty.all<Size>(
+                    Size(300, 400),
+                  ), // width, height
+                ),
                 onSelected: (String? text) {
                   secondStation.value = endStationController.text;
                   showButtonEnable2.value =
@@ -424,7 +433,8 @@ class _FirstPageState extends State<FirstPage> {
                               time.value = ride.getTime;
                               count.value = ride.getCount;
                               ticket.value = ride.getTicket;
-                              nearestStation.value = ride.getNearestStation;
+                              // nearestStation.value = ride.getNearestStation;
+                              findNearStation(false);
                             }
                           : null,
                       child: Text('show'),
@@ -433,7 +443,7 @@ class _FirstPageState extends State<FirstPage> {
                   ElevatedButton(
                     onPressed: () {
                       // will change the first drop down to the nearest station to the user
-                      findNearStation();
+                      findNearStation(true);
                     },
                     child: Text('Nearest Station'),
                   ),
@@ -565,7 +575,7 @@ class _FirstPageState extends State<FirstPage> {
     }
   }
 
-  Future<String> findNearStation() async {
+  Future<void> findNearStation(bool edit) async {
     getLocationPermission();
     //1- get current location
     final pos = await Geolocator.getCurrentPosition();
@@ -586,11 +596,12 @@ class _FirstPageState extends State<FirstPage> {
         nearestStation = station.name;
       }
     }
-    startStationController.text = nearestStation;
-    firstStation.value = nearestStation;
-    showButtonEnable1.value = true;
-
-    return nearestStation;
+    if (edit) {
+      startStationController.text = nearestStation;
+      firstStation.value = nearestStation;
+      showButtonEnable1.value = true;
+    }
+    this.nearestStation.value = nearestStation;
   }
 
   Future<void> findDestination(String Address) async {
