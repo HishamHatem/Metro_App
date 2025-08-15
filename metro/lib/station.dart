@@ -103,7 +103,7 @@ const stationsCoordinates = <Station>[
     longitude: 31.24861230297706,
   ),
   Station(
-    name: 'شبرا',
+    name: 'shubra elkheima',
     latitude: 30.12243338759986,
     longitude: 31.2444174077958,
   ),
@@ -138,7 +138,7 @@ const stationsCoordinates = <Station>[
     longitude: 31.29927197405296,
   ),
   Station(
-    name: 'كوتسكا',
+    name: 'kozzika',
     latitude: 29.93627993477272,
     longitude: 31.281684536917687,
   ),
@@ -199,8 +199,8 @@ const stationsCoordinates = <Station>[
   ),
   Station(
     name: 'gamal abdel nasser',
-    latitude: 30.05350437670406,
-    longitude: 31.238575323162458,
+    latitude: 30.05313694421116,
+    longitude: 31.24024560029216,
   ),
   Station(
     name: 'orabi',
@@ -358,14 +358,14 @@ const stationsCoordinates = <Station>[
     longitude: 31.255704923358987,
   ),
   Station(
-    name: 'العتبة',
+    name: 'attaba',
     latitude: 30.052298172850314,
     longitude: 31.246607043447383,
   ),
   Station(
-    name: 'جمال عبد الناصر',
-    latitude: 30.053491802810218,
-    longitude: 31.238485012241647,
+    name: 'gamal abdel nasser',
+    latitude: 30.05349882470816,
+    longitude: 31.238728282658997,
   ),
   Station(
     name: 'maspero',

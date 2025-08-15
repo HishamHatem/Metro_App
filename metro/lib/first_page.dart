@@ -703,7 +703,7 @@ class _FirstPageState extends State<FirstPage> {
   ///
   /// When the location services are not enabled or permissions
   /// are denied the `Future` will return an error.
-  Future<Position> _determinePosition() async {
+  Future<void> getLocationPermission() async {
     bool serviceEnabled;
     LocationPermission permission;
 
@@ -713,7 +713,8 @@ class _FirstPageState extends State<FirstPage> {
       // Location services are not enabled don't continue
       // accessing the position and request users of the
       // App to enable the location services.
-      return Future.error('Location services are disabled.');
+      Get.snackbar('Error', 'Location services are disabled');
+      return ;
     }
 
     permission = await Geolocator.checkPermission();
@@ -725,34 +726,32 @@ class _FirstPageState extends State<FirstPage> {
         // Android's shouldShowRequestPermissionRationale
         // returned true. According to Android guidelines
         // your App should show an explanatory UI now.
-        return Future.error('Location permissions are denied');
+        Get.snackbar('Error', 'Location permissions are denied');
+        return;
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
       // Permissions are denied forever, handle appropriately.
-      return Future.error(
-        'Location permissions are permanently denied, we cannot request permissions.',
-      );
+      Get.snackbar('Error', 'Location permissions are permanently denied, we cannot request permissions.');
+      return ;
     }
 
-    // When we reach here, permissions are granted and we can
-    // continue accessing the position of the device.
-    return await Geolocator.getCurrentPosition();
   }
 
   Future<String> findNearStation() async {
+    getLocationPermission();
     //1- get current location
     final pos = await Geolocator.getCurrentPosition();
     //2- loop on all station and find the min distance
     double minDistance = double.infinity;
-    double dis = 0.0;
+    double distance = 0.0;
     String nearestStation = '';
     for (var station in graphs.keys) {
       //find min distance with function
       final locations = await locationFromAddress(station);
       if (locations.isNotEmpty) {
-        dis = Geolocator.distanceBetween(
+        distance = Geolocator.distanceBetween(
           pos.latitude,
           pos.longitude,
           // You need to replace these with actual coordinates of the stations
@@ -761,8 +760,8 @@ class _FirstPageState extends State<FirstPage> {
           locations.first.longitude, // Replace with station longitude
         );
       }
-      if (dis < minDistance) {
-        minDistance = dis;
+      if (distance < minDistance) {
+        minDistance = distance;
         nearestStation = station;
       }
       // final places = await placemarkFromCoordinates(latitude, longitude);
