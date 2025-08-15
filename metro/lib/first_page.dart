@@ -351,251 +351,253 @@ class _FirstPageState extends State<FirstPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            spacing: 16,
-            children: [
-              SizedBox(
-                height: 200,
-                child: Image.asset('assets/images/background/metro.png'),
-              ),
-              Text(
-                'Metro Guide',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              // use ListTile for each DropdownMenu
-              ListTile(
-                title: Row(
-                  spacing: 8,
-                  children: [
-                    Flexible(
-                      flex: 1,
-                      child: DropdownMenu<String>(
-                        controller: startStationController,
-                        hintText: 'please select first station',
-                        width: double.infinity,
-                        enableSearch: true,
-                        enableFilter: true,
-                        requestFocusOnTap: true,
-                        dropdownMenuEntries: [
-                          for (var station in graphs.keys)
-                            DropdownMenuEntry(value: station, label: station),
-                        ],
-                        menuStyle: MenuStyle(
-                          maximumSize: MaterialStateProperty.all<Size>(
-                            Size(300, 400),
-                          ), // width, height
-                        ),
-                        onSelected: (String? text) {
-                          firstStation.value = startStationController.text;
-                          showButtonEnable1.value =
-                              startStationController.text.isNotEmpty;
-                          map_enabled_1.value = true;
-                        },
-                      ),
-                    ),
-                    Flexible(
-                      flex: 1,
-                      child: Obx(() {
-                        return ElevatedButton(
-                          onPressed: map_enabled_1.value
-                              ? () {
-                                  Station currentStation =
-                                      Station.findStationByName(
-                                        firstStation.value,
-                                      );
-                                  final url = Uri.parse(
-                                    'geo:0,0?q=${currentStation.latitude},${currentStation.longitude}',
-                                  );
-                                  // Open the URL in the default browser
-                                  launchUrl(url);
-                                }
-                              : null,
-                          child: Text('On Map'),
-                        );
-                      }),
-                    ),
-                  ],
+      body: SingleChildScrollView(
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              spacing: 16,
+              children: [
+                SizedBox(
+                  height: 200,
+                  child: Image.asset('assets/images/background/metro.png'),
                 ),
-              ),
-
-              ListTile(
-                title: Row(
-                  spacing: 8,
-                  children: [
-                    Flexible(
-                      flex: 1,
-                      child: DropdownMenu<String>(
-                        controller: endStationController,
-                        hintText: 'please select second station',
-                        width: double.infinity,
-                        enableSearch: true,
-                        enableFilter: true,
-                        requestFocusOnTap: true,
-                        dropdownMenuEntries: [
-                          for (var station in graphs.keys)
-                            DropdownMenuEntry(value: station, label: station),
-                        ],
-                        menuStyle: MenuStyle(
-                          maximumSize: MaterialStateProperty.all<Size>(
-                            Size(300, 400),
-                          ), // width, height
-                        ),
-                        onSelected: (String? text) {
-                          secondStation.value = endStationController.text;
-                          showButtonEnable2.value =
-                              endStationController.text.isNotEmpty;
-                        },
-                      ),
-                    ),
-                    Flexible(
-                      flex: 1,
-                      child: Obx(() {
-                        return ElevatedButton(
-                          onPressed: map_enabled_2.value
-                              ? () {
-                                  Station currentStation =
-                                      Station.findStationByName(
-                                        secondStation.value,
-                                      );
-                                  final url = Uri.parse(
-                                    'geo:0,0?q=${currentStation.latitude},${currentStation.longitude}',
-                                  );
-                                  // Open the URL in the default browser
-                                  launchUrl(url);
-                                }
-                              : null,
-                          child: Text('On Map'),
-                        );
-                      }),
-                    ),
-                  ],
+                Text(
+                  'Metro Guide',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
-              ),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Obx(() {
-                    return ElevatedButton(
-                      onPressed:
-                          (showButtonEnable1.value && showButtonEnable2.value)
-                          ? () {
-                              enabled_3.value = true;
-                              ride = Ride(
-                                firstStation: firstStation.value,
-                                secondStation: secondStation.value,
-                              );
-
-                              ride.findPaths(
-                                firstStation.value,
-                                secondStation.value,
-                                graphs,
-                              );
-
-                              paths = ride.getAllPaths;
-                              time.value = ride.getTime;
-                              count.value = ride.getCount;
-                              ticket.value = ride.getTicket;
-                              // nearestStation.value = ride.getNearestStation;
-                              findNearStation(false);
-                            }
-                          : null,
-                      child: Text('show'),
-                    );
-                  }),
-                  ElevatedButton(
-                    onPressed: () {
-                      // will change the first drop down to the nearest station to the user
-                      findNearStation(true);
-                    },
-                    child: Text('Nearest Station'),
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Obx(() {
-                    return Align(
-                      alignment: Alignment.centerLeft,
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              'Time: ${time}\n'
-                              'Count: ${count}\n'
-                              'Ticket: ${ticket}\n'
-                              'Nearest Station: ${nearestStation}',
-                            ),
+                // use ListTile for each DropdownMenu
+                ListTile(
+                  title: Row(
+                    spacing: 8,
+                    children: [
+                      Flexible(
+                        flex: 1,
+                        child: DropdownMenu<String>(
+                          controller: startStationController,
+                          hintText: 'please select first station',
+                          width: double.infinity,
+                          enableSearch: true,
+                          enableFilter: true,
+                          requestFocusOnTap: true,
+                          dropdownMenuEntries: [
+                            for (var station in graphs.keys)
+                              DropdownMenuEntry(value: station, label: station),
+                          ],
+                          menuStyle: MenuStyle(
+                            maximumSize: MaterialStateProperty.all<Size>(
+                              Size(300, 400),
+                            ), // width, height
                           ),
-                        ],
+                          onSelected: (String? text) {
+                            firstStation.value = startStationController.text;
+                            showButtonEnable1.value =
+                                startStationController.text.isNotEmpty;
+                            map_enabled_1.value = true;
+                          },
+                        ),
                       ),
-                    );
-                  }),
-                  Align(
-                    alignment: Alignment.center,
-                    child: Obx(() {
+                      Flexible(
+                        flex: 1,
+                        child: Obx(() {
+                          return ElevatedButton(
+                            onPressed: firstStation.value.isNotEmpty
+                                ? () {
+                                    Station currentStation =
+                                        Station.findStationByName(
+                                          firstStation.value,
+                                        );
+                                    final url = Uri.parse(
+                                      'geo:0,0?q=${currentStation.latitude},${currentStation.longitude}',
+                                    );
+                                    // Open the URL in the default browser
+                                    launchUrl(url);
+                                  }
+                                : null,
+                            child: Text('On Map'),
+                          );
+                        }),
+                      ),
+                    ],
+                  ),
+                ),
+
+                ListTile(
+                  title: Row(
+                    spacing: 8,
+                    children: [
+                      Flexible(
+                        flex: 1,
+                        child: DropdownMenu<String>(
+                          controller: endStationController,
+                          hintText: 'please select second station',
+                          width: double.infinity,
+                          enableSearch: true,
+                          enableFilter: true,
+                          requestFocusOnTap: true,
+                          dropdownMenuEntries: [
+                            for (var station in graphs.keys)
+                              DropdownMenuEntry(value: station, label: station),
+                          ],
+                          menuStyle: MenuStyle(
+                            maximumSize: MaterialStateProperty.all<Size>(
+                              Size(300, 400),
+                            ), // width, height
+                          ),
+                          onSelected: (String? text) {
+                            secondStation.value = endStationController.text;
+                            showButtonEnable2.value =
+                                endStationController.text.isNotEmpty;
+                          },
+                        ),
+                      ),
+                      Flexible(
+                        flex: 1,
+                        child: Obx(() {
+                          return ElevatedButton(
+                            onPressed: secondStation.value.isNotEmpty
+                                ? () {
+                                    Station currentStation =
+                                        Station.findStationByName(
+                                          secondStation.value,
+                                        );
+                                    final url = Uri.parse(
+                                      'geo:0,0?q=${currentStation.latitude},${currentStation.longitude}',
+                                    );
+                                    // Open the URL in the default browser
+                                    launchUrl(url);
+                                  }
+                                : null,
+                            child: Text('On Map'),
+                          );
+                        }),
+                      ),
+                    ],
+                  ),
+                ),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Obx(() {
                       return ElevatedButton(
-                        onPressed: enabled_3.value
+                        onPressed:
+                            (showButtonEnable1.value && showButtonEnable2.value)
                             ? () {
-                                Get.to(
-                                  SecondPage(),
-                                  arguments: ride,
-                                  transition: Transition.rightToLeft,
+                                enabled_3.value = true;
+                                ride = Ride(
+                                  firstStation: firstStation.value,
+                                  secondStation: secondStation.value,
                                 );
+
+                                ride.findPaths(
+                                  firstStation.value,
+                                  secondStation.value,
+                                  graphs,
+                                );
+
+                                paths = ride.getAllPaths;
+                                time.value = ride.getTime;
+                                count.value = ride.getCount;
+                                ticket.value = ride.getTicket;
+                                // nearestStation.value = ride.getNearestStation;
+                                findNearStation(false);
                               }
                             : null,
-                        child: Row(
-                          spacing: 8,
+                        child: Text('show'),
+                      );
+                    }),
+                    ElevatedButton(
+                      onPressed: () {
+                        // will change the first drop down to the nearest station to the user
+                        findNearStation(true);
+                      },
+                      child: Text('Nearest Station'),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Obx(() {
+                      return Align(
+                        alignment: Alignment.centerLeft,
+                        child: Column(
                           children: [
-                            Text('more'),
-                            Icon(Icons.arrow_circle_right_outlined),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                'Time: ${time}\n'
+                                'Count: ${count}\n'
+                                'Ticket: ${ticket}\n'
+                                'Nearest Station: ${nearestStation}',
+                              ),
+                            ),
                           ],
                         ),
                       );
                     }),
-                  ),
-                ],
-              ),
-              ListTile(
-                title: Row(
-                  spacing: 8,
-                  children: [
-                    Flexible(
-                      flex: 1, // takes 2 parts of the available space
-                      child: TextField(
-                        controller: destinationController,
-                        decoration: InputDecoration(
-                          labelText: 'Enter your Destination',
-                        ),
-                        onChanged: (String? x) {
-                          enabled_4.value = x != null && x.isNotEmpty;
-                        },
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    Flexible(
-                      flex: 1, // takes 1 part of the space
+                    Align(
+                      alignment: Alignment.center,
                       child: Obx(() {
                         return ElevatedButton(
-                          onPressed: enabled_4.value
+                          onPressed: enabled_3.value
                               ? () {
-                                  // find the nearest station
-                                  findDestination(destinationController.text);
+                                  Get.to(
+                                    SecondPage(),
+                                    arguments: ride,
+                                    transition: Transition.rightToLeft,
+                                  );
                                 }
                               : null,
-                          child: Text('Show'),
+                          child: Row(
+                            spacing: 8,
+                            children: [
+                              Text('more'),
+                              Icon(Icons.arrow_circle_right_outlined),
+                            ],
+                          ),
                         );
                       }),
                     ),
                   ],
                 ),
-              ),
-            ],
+                ListTile(
+                  title: Row(
+                    spacing: 8,
+                    children: [
+                      Flexible(
+                        flex: 1, // takes 2 parts of the available space
+                        child: TextField(
+                          controller: destinationController,
+                          decoration: InputDecoration(
+                            labelText: 'Enter your Destination',
+                          ),
+                          onChanged: (String? x) {
+                            enabled_4.value = x != null && x.isNotEmpty;
+                          },
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      Flexible(
+                        flex: 1, // takes 1 part of the space
+                        child: Obx(() {
+                          return ElevatedButton(
+                            onPressed: enabled_4.value
+                                ? () {
+                                    // find the nearest station
+                                    findDestination(destinationController.text);
+                                  }
+                                : null,
+                            child: Text('Show'),
+                          );
+                        }),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
