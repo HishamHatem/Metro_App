@@ -8,6 +8,12 @@ class Station {
     required this.latitude,
     required this.longitude,
   });
+  static Station findStationByName(String name) {
+    return stationsCoordinates.firstWhere(
+      (station) => station.name.toLowerCase() == name.toLowerCase(),
+      orElse: () => Station(name: 'Unknown', latitude: 0.0, longitude: 0.0),
+    );
+  }
 }
 
 const stationsCoordinates = <Station>[

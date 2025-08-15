@@ -6,6 +6,7 @@ import 'package:metro/second_page.dart';
 import 'package:metro/ride.dart';
 import 'package:geolocator/geolocator.dart';
 import 'station.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class FirstPage extends StatefulWidget {
   FirstPage({super.key});
@@ -29,6 +30,8 @@ class _FirstPageState extends State<FirstPage> {
   var showButtonEnable2 = false.obs;
   var enabled_3 = false.obs;
   var enabled_4 = false.obs;
+  var map_enabled_1 = false.obs;
+  var map_enabled_2 = false.obs;
 
   final graphs = <String, List<String>>{
     "helwan": ["line_1", "ain helwan", "line_1"],
@@ -363,50 +366,113 @@ class _FirstPageState extends State<FirstPage> {
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               // use ListTile for each DropdownMenu
-              DropdownMenu<String>(
-                controller: startStationController,
-                hintText: 'please select first station',
-                width: double.infinity,
-                enableSearch: true,
-                enableFilter: true,
-                requestFocusOnTap: true,
-                dropdownMenuEntries: [
-                  for (var station in graphs.keys)
-                    DropdownMenuEntry(value: station, label: station),
-                ],
-                menuStyle: MenuStyle(
-                  maximumSize: MaterialStateProperty.all<Size>(
-                    Size(300, 400),
-                  ), // width, height
+              ListTile(
+                title: Row(
+                  spacing: 8,
+                  children: [
+                    Flexible(
+                      flex: 1,
+                      child: DropdownMenu<String>(
+                        controller: startStationController,
+                        hintText: 'please select first station',
+                        width: double.infinity,
+                        enableSearch: true,
+                        enableFilter: true,
+                        requestFocusOnTap: true,
+                        dropdownMenuEntries: [
+                          for (var station in graphs.keys)
+                            DropdownMenuEntry(value: station, label: station),
+                        ],
+                        menuStyle: MenuStyle(
+                          maximumSize: MaterialStateProperty.all<Size>(
+                            Size(300, 400),
+                          ), // width, height
+                        ),
+                        onSelected: (String? text) {
+                          firstStation.value = startStationController.text;
+                          showButtonEnable1.value =
+                              startStationController.text.isNotEmpty;
+                          map_enabled_1.value = true;
+                        },
+                      ),
+                    ),
+                    Flexible(
+                      flex: 1,
+                      child: Obx(() {
+                        return ElevatedButton(
+                          onPressed: map_enabled_1.value
+                              ? () {
+                                  Station currentStation =
+                                      Station.findStationByName(
+                                        firstStation.value,
+                                      );
+                                  final url = Uri.parse(
+                                    'geo:0,0?q=${currentStation.latitude},${currentStation.longitude}',
+                                  );
+                                  // Open the URL in the default browser
+                                  launchUrl(url);
+                                }
+                              : null,
+                          child: Text('On Map'),
+                        );
+                      }),
+                    ),
+                  ],
                 ),
-                onSelected: (String? text) {
-                  firstStation.value = startStationController.text;
-                  showButtonEnable1.value =
-                      startStationController.text.isNotEmpty;
-                },
               ),
 
-              DropdownMenu<String>(
-                controller: endStationController,
-                hintText: 'please select second station',
-                width: double.infinity,
-                enableSearch: true,
-                enableFilter: true,
-                requestFocusOnTap: true,
-                dropdownMenuEntries: [
-                  for (var station in graphs.keys)
-                    DropdownMenuEntry(value: station, label: station),
-                ],
-                menuStyle: MenuStyle(
-                  maximumSize: MaterialStateProperty.all<Size>(
-                    Size(300, 400),
-                  ), // width, height
+              ListTile(
+                title: Row(
+                  spacing: 8,
+                  children: [
+                    Flexible(
+                      flex: 1,
+                      child: DropdownMenu<String>(
+                        controller: endStationController,
+                        hintText: 'please select second station',
+                        width: double.infinity,
+                        enableSearch: true,
+                        enableFilter: true,
+                        requestFocusOnTap: true,
+                        dropdownMenuEntries: [
+                          for (var station in graphs.keys)
+                            DropdownMenuEntry(value: station, label: station),
+                        ],
+                        menuStyle: MenuStyle(
+                          maximumSize: MaterialStateProperty.all<Size>(
+                            Size(300, 400),
+                          ), // width, height
+                        ),
+                        onSelected: (String? text) {
+                          secondStation.value = endStationController.text;
+                          showButtonEnable2.value =
+                              endStationController.text.isNotEmpty;
+                        },
+                      ),
+                    ),
+                    Flexible(
+                      flex: 1,
+                      child: Obx(() {
+                        return ElevatedButton(
+                          onPressed: map_enabled_2.value
+                              ? () {
+                                  Station currentStation =
+                                      Station.findStationByName(
+                                        secondStation.value,
+                                      );
+                                  final url = Uri.parse(
+                                    'geo:0,0?q=${currentStation.latitude},${currentStation.longitude}',
+                                  );
+                                  // Open the URL in the default browser
+                                  launchUrl(url);
+                                }
+                              : null,
+                          child: Text('On Map'),
+                        );
+                      }),
+                    ),
+                  ],
                 ),
-                onSelected: (String? text) {
-                  secondStation.value = endStationController.text;
-                  showButtonEnable2.value =
-                      endStationController.text.isNotEmpty;
-                },
               ),
 
               Row(
