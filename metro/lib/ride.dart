@@ -133,17 +133,17 @@ class Ride {
       this.nearestStation = "No path found!";
       return;
     } else {
-      this.time =
-          allPaths[0].length * 2; // Assuming each station takes 2 minutes
       this.count =
           allPaths[0].length ~/
-          2; // Each station is represented by two elements (station, line)
-      if (allPaths[0].length <= 9) {
+              2; // Each station is represented by two elements (station, line)
+      this.time =
+          this.count * 2; // Assuming each station takes 2 minutes
+      if (this.count <= 9) {
         this.ticket = 8;
-      } else if (allPaths[0].length > 23) {
+      } else if (this.count > 23) {
         this.ticket = 20;
       } else {
-        this.ticket = 10 + 5 * ((allPaths[0].length - 9) ~/ 7);
+        this.ticket = 10 + 5 * ((this.count - 9) ~/ 7);
       }
     }
     for (var path in allPaths) {

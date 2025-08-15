@@ -15,123 +15,22 @@ class FirstPage extends StatefulWidget {
 }
 
 class _FirstPageState extends State<FirstPage> {
+
   final startStationController = TextEditingController();
-
   final endStationController = TextEditingController();
-
   final destinationController = TextEditingController();
-
   var firstStation = ''.obs;
-
   var secondStation = ''.obs;
-
   var ride = Ride(firstStation: '', secondStation: '');
-
-  // List<List<String>> paths = [['a','b'],['c','d'],['e','f'],['g','h']];
-
   var count = 0.obs;
-
   var time = 0.obs;
-
   var ticket = 0.obs;
-
   var nearestStation = ''.obs;
-
   var showButtonEnable1 = false.obs;
-
   var showButtonEnable2 = false.obs;
-
   var enabled_3 = false.obs;
-
   var enabled_4 = false.obs;
 
-  // final station = <Stations> [];
-  // final stationNames = [
-  //   "helwan",
-  //   "ain helwan",
-  //   "helwan university",
-  //   "wadi hof",
-  //   "hadayek helwan",
-  //   "elmaasara",
-  //   "tora elasmant",
-  //   "kozzika",
-  //   "tora elbalad",
-  //   "sakanat elmaadi",
-  //   "maadi",
-  //   "hadayek elmaadi",
-  //   "dar elsalam",
-  //   "elzahraa",
-  //   "mar girgis",
-  //   "elmalek elsaleh",
-  //   "alsayeda zeinab",
-  //   "saad zaghloul",
-  //   "sadat",
-  //   "gamal abdel nasser",
-  //   "orabi",
-  //   "alshohadaa",
-  //   "ghamra",
-  //   "eldemerdash",
-  //   "manshiet elsadr",
-  //   "kobri elqobba",
-  //   "hammamat elqobba",
-  //   "saray elqobba",
-  //   "hadayek elzaitoun",
-  //   "helmeyet elzaitoun",
-  //   "elmatareyya",
-  //   "ain shams",
-  //   "ezbet elnakhl",
-  //   "elmarg",
-  //   "new elmarg",
-  //   "shubra elkheima",
-  //   "kolleyyet elzeraa",
-  //   "mezallat",
-  //   "khalafawy",
-  //   "st. teresa",
-  //   "rod elfarag",
-  //   "masarra",
-  //   "attaba",
-  //   "mohamed naguib",
-  //   "opera",
-  //   "dokki",
-  //   "el bohoth",
-  //   "cairo university",
-  //   "faisal",
-  //   "giza",
-  //   "omm elmasryeen",
-  //   "sakiat mekky",
-  //   "elmounib",
-  //   "adly mansour",
-  //   "elhaykestep",
-  //   "omar ibn elkhattab",
-  //   "qubaa",
-  //   "hesham barakat",
-  //   "elnozha",
-  //   "el shams club",
-  //   "alf masken",
-  //   "heliopolis",
-  //   "haroun",
-  //   "alahram",
-  //   "koleyet elbanat",
-  //   "stadium",
-  //   "fair zone",
-  //   "abbassiya",
-  //   "abdou pasha",
-  //   "elgeish",
-  //   "bab elshaariya",
-  //   "maspero",
-  //   "safaa hijazy",
-  //   "kit kat",
-  //   "sudan",
-  //   "imbaba",
-  //   "elbohy",
-  //   "elqawmia",
-  //   "ring road",
-  //   "rod elfarag corridor",
-  //   "tawfikia",
-  //   "wadi el nile",
-  //   "gamet el dowal",
-  //   "boulak el dakrour",
-  // ];
   final graphs = <String, List<String>>{
     "helwan": ["line_1", "ain helwan", "line_1"],
     "ain helwan": ["line_1", "helwan", "line_1", "helwan university", "line_1"],
@@ -447,18 +346,9 @@ class _FirstPageState extends State<FirstPage> {
     super.dispose();
   }
 
-  // Don't forget to add Dispose function to clean up the controllers
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: Column(
-      //     children: [
-      //
-      //     ],
-      //   ),
-      //   centerTitle: true,
-      // ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -531,36 +421,10 @@ class _FirstPageState extends State<FirstPage> {
                               );
 
                               paths = ride.getAllPaths;
-                              time.value = ride
-                                  .getTime; // Example time, replace with actual logic
-                              count.value = ride
-                                  .getCount; // Example count, replace with actual logic
-                              ticket.value = ride
-                                  .getTicket; // Example ticket price, replace with actual logic
-                              nearestStation.value = ride
-                                  .getNearestStation; // Example nearest station, replace with actual logic
-                              // this is the right code but after implementing the data of all stations
-
-                              // var paths = ride.findPaths(
-                              //   ride.getListOfNamesAndLines,
-                              //   firstStation.value,
-                              //   secondStation.value,
-                              // );
-                              // if (paths.isNotEmpty) {
-                              //   time.value = ride.getTime;
-                              //   count.value = ride.getCount;
-                              //   ticket.value = ride.getTicket;
-                              //   // in the near station u must check if it's really near to user or not by location
-                              //   //it's not just the first station in the path
-                              //   //and the check will happen here not in the Ride class
-                              //   nearestStation.value = ride.getNearestStation;
-                              // } else {
-                              //   Get.snackbar(
-                              //     'Error',
-                              //     'No path found between ${firstStation.value} and ${secondStation.value}',
-                              //     snackPosition: SnackPosition.BOTTOM,
-                              //   );
-                              // }
+                              time.value = ride.getTime;
+                              count.value = ride.getCount;
+                              ticket.value = ride.getTicket;
+                              nearestStation.value = ride.getNearestStation;
                             }
                           : null,
                       child: Text('show'),
@@ -583,19 +447,13 @@ class _FirstPageState extends State<FirstPage> {
                       alignment: Alignment.centerLeft,
                       child: Column(
                         children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey, width: 3),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                'Time: ${time}\n'
-                                'Count: ${count}\n'
-                                'Ticket: ${ticket}\n'
-                                'Nearest Station: ${nearestStation}',
-                              ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              'Time: ${time}\n'
+                              'Count: ${count}\n'
+                              'Ticket: ${ticket}\n'
+                              'Nearest Station: ${nearestStation}',
                             ),
                           ),
                         ],
@@ -627,34 +485,6 @@ class _FirstPageState extends State<FirstPage> {
                   ),
                 ],
               ),
-
-              // Row(
-              //   children: [
-              //     Container(
-              //       width: ,
-              //       child: TextField(
-              //         controller: destinationController,
-              //         decoration: InputDecoration(
-              //           labelText: 'Enter your Destination',
-              //           border: OutlineInputBorder(),
-              //         ),
-              //         onChanged: (String? x) {
-              //           enabled_4.value = x != null && x.isNotEmpty;
-              //         },
-              //       ),
-              //     ),
-              //   ],
-              // ),
-              // Obx(() {
-              //   return ElevatedButton(
-              //     onPressed: enabled_4.value
-              //         ? () {
-              //       // find the nearest station to the destination using geocoding
-              //     }
-              //         : null,
-              //     child: Text('Show'),
-              //   );
-              // }),
               ListTile(
                 title: Row(
                   spacing: 8,
@@ -689,15 +519,6 @@ class _FirstPageState extends State<FirstPage> {
                   ],
                 ),
               ),
-
-              // Obx(() {  // will show the data
-              //   return Column(
-              //     children: [
-              //       Text('data: ${firstStation.value}'),
-              //       Text('data: ${secondStation.value}'),
-              //     ],
-              //   );
-              // }),
             ],
           ),
         ),
@@ -705,10 +526,7 @@ class _FirstPageState extends State<FirstPage> {
     );
   }
 
-  /// Determine the current position of the device.
-  ///
-  /// When the location services are not enabled or permissions
-  /// are denied the `Future` will return an error.
+  // Function to get location permission
   Future<void> getLocationPermission() async {
     bool serviceEnabled;
     LocationPermission permission;
@@ -767,23 +585,18 @@ class _FirstPageState extends State<FirstPage> {
         minDistance = distance;
         nearestStation = station.name;
       }
-      // final places = await placemarkFromCoordinates(latitude, longitude);
-      //nearestStation = places.first.name;
     }
     startStationController.text = nearestStation;
     firstStation.value = nearestStation;
     showButtonEnable1.value = true;
-    // print(
-    //   'current position: $pos : lat: ${pos.latitude}, long: ${pos.longitude}',
-    // );
-    // print('station is: $nearestStation : lat: ');
+
     return nearestStation;
   }
 
-  Future<void> findDestination(String ad) async {
+  Future<void> findDestination(String Address) async {
     getLocationPermission();
 
-    final loc = await locationFromAddress(ad);
+    final locations = await locationFromAddress(Address);
 
     double minDistance = double.infinity;
     double distance = 0.0;
@@ -791,8 +604,8 @@ class _FirstPageState extends State<FirstPage> {
     for (var station in stationsCoordinates) {
       //find min distance with function
       distance = Geolocator.distanceBetween(
-        loc.first.latitude,
-        loc.first.longitude,
+        locations.first.latitude,
+        locations.first.longitude,
         station.latitude,
         station.longitude,
       );
@@ -800,14 +613,9 @@ class _FirstPageState extends State<FirstPage> {
         minDistance = distance;
         nearestStation = station.name;
       }
-      // final places = await placemarkFromCoordinates(latitude, longitude);
-      //nearestStation = places.first.name;
     }
     endStationController.text = nearestStation;
     secondStation.value = nearestStation;
     showButtonEnable2.value = endStationController.text.isNotEmpty;
-    // print(
-    //   'station is: $nearestStation : lat: ${pos.latitude}, long: ${pos.longitude}',
-    // );
   }
 }
