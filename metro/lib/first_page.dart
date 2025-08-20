@@ -388,13 +388,22 @@ class _FirstPageState extends State<FirstPage> {
                                   DropdownMenuEntry(value: station, label: station),
                               ],
                               menuStyle: MenuStyle(
-                                maximumSize: MaterialStateProperty.all<Size>(
+                                maximumSize: WidgetStateProperty.all<Size>(
                                   Size(300, 400),
                                 ), // width, height
                               ),
                               onSelected: (String? text) {
                                 firstStation.value = startStationController.text;
-                                startStationEnable.value = startStationController.text.isNotEmpty;
+                                if(firstStation.value != '' && graphs.containsKey(firstStation.value)) {
+                                  startStationEnable.value = startStationController.text.isNotEmpty;
+                                } else {
+                                  startStationEnable.value = false;
+                                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                                    startStationController.clear();
+                                    firstStation.value = '';
+                                  });
+                                  Get.snackbar('Error', 'Invalid station selected');
+                                }
                               },
                             ),
                           ),
@@ -419,6 +428,24 @@ class _FirstPageState extends State<FirstPage> {
                         ],
                       ),
 
+                      Obx((){
+                        return IconButton(
+                            onPressed: (startStationEnable.value && endStationEnable.value) ? () {
+                              // Swap the values of the two stations
+                              String temp = firstStation.value;
+                              firstStation.value = secondStation.value;
+                              secondStation.value = temp;
+
+                              // Update the controllers
+                              startStationController.text = firstStation.value;
+                              endStationController.text = secondStation.value;
+                            } : null,
+                            icon: Icon(
+                              Icons.swap_calls_rounded,
+                            )
+                        );
+                      }),
+
                       Row(
                         spacing: 8,
                         children: [
@@ -436,13 +463,18 @@ class _FirstPageState extends State<FirstPage> {
                                   DropdownMenuEntry(value: station, label: station),
                               ],
                               menuStyle: MenuStyle(
-                                maximumSize: MaterialStateProperty.all<Size>(
+                                maximumSize: WidgetStateProperty.all<Size>(
                                   Size(300, 400),
                                 ), // width, height
                               ),
                               onSelected: (String? text) {
                                 secondStation.value = endStationController.text;
-                                endStationEnable.value = endStationController.text.isNotEmpty;
+                                if(secondStation.value != '' && graphs.containsKey(secondStation.value)) {
+                                  endStationEnable.value = endStationController.text.isNotEmpty;
+                                } else {
+                                  endStationEnable.value = false;
+                                  Get.snackbar('Error', 'Invalid station selected');
+                                }
                               },
                             ),
                           ),
@@ -471,31 +503,35 @@ class _FirstPageState extends State<FirstPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           Obx(() {
-                            return ElevatedButton(
-                              onPressed:
-                              (startStationEnable.value && endStationEnable.value)
-                                  ? () {
-                                enabled_3.value = true;
-                                ride = Ride(
-                                  firstStation: firstStation.value,
-                                  secondStation: secondStation.value,
-                                );
+                            return AnimatedOpacity(
+                              opacity: (startStationEnable.value && endStationEnable.value) ? 1.0 : 0.4,
+                              duration: Duration(milliseconds: 300),
+                              child: ElevatedButton(
+                                onPressed:
+                                (startStationEnable.value && endStationEnable.value)
+                                    ? () {
+                                  enabled_3.value = true;
+                                  ride = Ride(
+                                    firstStation: firstStation.value,
+                                    secondStation: secondStation.value,
+                                  );
 
-                                ride.findPaths(
-                                  firstStation.value,
-                                  secondStation.value,
-                                  graphs,
-                                );
+                                  ride.findPaths(
+                                    firstStation.value,
+                                    secondStation.value,
+                                    graphs,
+                                  );
 
-                                paths = ride.getAllPaths;
-                                time.value = ride.getTime;
-                                count.value = ride.getCount;
-                                ticket.value = ride.getTicket;
-                                // nearestStation.value = ride.getNearestStation;
-                                findNearStation(false);
-                              }
-                                  : null,
-                              child: Text('show'),
+                                  paths = ride.getAllPaths;
+                                  time.value = ride.getTime;
+                                  count.value = ride.getCount;
+                                  ticket.value = ride.getTicket;
+                                  // nearestStation.value = ride.getNearestStation;
+                                  findNearStation(false);
+                                }
+                                    : null,
+                                child: Text('show'),
+                              ),
                             );
                           }),
                           ElevatedButton(
@@ -518,10 +554,11 @@ class _FirstPageState extends State<FirstPage> {
                                   Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Text(
+                                      'Shortest Path info\n'
                                       'Time: ${time}\n'
-                                          'Count: ${count}\n'
-                                          'Ticket: ${ticket}\n'
-                                          'Nearest Station: ${nearestStation}',
+                                      'Count: ${count}\n'
+                                      'Ticket: ${ticket}\n'
+                                      'Nearest Station: ${nearestStation}',
                                     ),
                                   ),
                                 ],
