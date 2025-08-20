@@ -26,8 +26,8 @@ class _FirstPageState extends State<FirstPage> {
   var time = 0.obs;
   var ticket = 0.obs;
   var nearestStation = ''.obs;
-  var showButtonEnable1 = false.obs;
-  var showButtonEnable2 = false.obs;
+  var startStationEnable = false.obs;
+  var endStationEnable = false.obs;
   var enabled_3 = false.obs;
   var enabled_4 = false.obs;
   var map_enabled_1 = false.obs;
@@ -351,139 +351,130 @@ class _FirstPageState extends State<FirstPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              spacing: 16,
-              children: [
-                SizedBox(
-                  height: 200,
-                  child: Image.asset('assets/images/background/metro.png'),
-                ),
-                Text(
-                  'Metro Guide',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                // use ListTile for each DropdownMenu
-                ListTile(
-                  title: Row(
-                    spacing: 8,
+      resizeToAvoidBottomInset: true,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            spacing: 16,
+            children: [
+              SizedBox(
+                height: 100,
+                child: Image.asset('assets/images/background/metro.png'),
+              ),
+              Text(
+                'Metro Guide',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    spacing: 16,
                     children: [
-                      Flexible(
-                        flex: 1,
-                        child: DropdownMenu<String>(
-                          controller: startStationController,
-                          hintText: 'please select first station',
-                          width: double.infinity,
-                          enableSearch: true,
-                          enableFilter: true,
-                          requestFocusOnTap: true,
-                          dropdownMenuEntries: [
-                            for (var station in graphs.keys)
-                              DropdownMenuEntry(value: station, label: station),
-                          ],
-                          menuStyle: MenuStyle(
-                            maximumSize: MaterialStateProperty.all<Size>(
-                              Size(300, 400),
-                            ), // width, height
+                      Row(
+                        spacing: 8,
+                        children: [
+                          Flexible(
+                            flex: 1,
+                            child: DropdownMenu<String>(
+                              controller: startStationController,
+                              hintText: 'Departure Station',
+                              width: double.infinity,
+                              enableSearch: true,
+                              enableFilter: true,
+                              requestFocusOnTap: true,
+                              dropdownMenuEntries: [
+                                for (var station in graphs.keys)
+                                  DropdownMenuEntry(value: station, label: station),
+                              ],
+                              menuStyle: MenuStyle(
+                                maximumSize: MaterialStateProperty.all<Size>(
+                                  Size(300, 400),
+                                ), // width, height
+                              ),
+                              onSelected: (String? text) {
+                                firstStation.value = startStationController.text;
+                                startStationEnable.value = startStationController.text.isNotEmpty;
+                              },
+                            ),
                           ),
-                          onSelected: (String? text) {
-                            firstStation.value = startStationController.text;
-                            showButtonEnable1.value =
-                                startStationController.text.isNotEmpty;
-                            map_enabled_1.value = true;
-                          },
-                        ),
-                      ),
-                      Flexible(
-                        flex: 1,
-                        child: Obx(() {
-                          return ElevatedButton(
-                            onPressed: firstStation.value.isNotEmpty
-                                ? () {
-                                    Station currentStation =
-                                        Station.findStationByName(
-                                          firstStation.value,
-                                        );
-                                    final url = Uri.parse(
-                                      'geo:0,0?q=${currentStation.latitude},${currentStation.longitude}',
-                                    );
+                          Obx(() {
+                            return AnimatedOpacity(
+                              opacity: startStationEnable.value ? 1.0 : 0.4,
+                              duration: Duration(milliseconds: 300),
+                              child: IconButton(
+                                  onPressed: startStationEnable.value ? () {
+                                    Station currentStation = Station.findStationByName(firstStation.value,);
+                                    final url = Uri.parse('geo:0,0?q=${currentStation.latitude},${currentStation.longitude}');
                                     // Open the URL in the default browser
                                     launchUrl(url);
-                                  }
-                                : null,
-                            child: Text('On Map'),
-                          );
-                        }),
+                                  } : null,
+                                  icon: Icon(
+                                    Icons.location_on_rounded,
+                                    color: Colors.green,
+                                  )
+                              ),
+                            );
+                          }),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
 
-                ListTile(
-                  title: Row(
-                    spacing: 8,
-                    children: [
-                      Flexible(
-                        flex: 1,
-                        child: DropdownMenu<String>(
-                          controller: endStationController,
-                          hintText: 'please select second station',
-                          width: double.infinity,
-                          enableSearch: true,
-                          enableFilter: true,
-                          requestFocusOnTap: true,
-                          dropdownMenuEntries: [
-                            for (var station in graphs.keys)
-                              DropdownMenuEntry(value: station, label: station),
-                          ],
-                          menuStyle: MenuStyle(
-                            maximumSize: MaterialStateProperty.all<Size>(
-                              Size(300, 400),
-                            ), // width, height
+                      Row(
+                        spacing: 8,
+                        children: [
+                          Flexible(
+                            flex: 1,
+                            child: DropdownMenu<String>(
+                              controller: endStationController,
+                              hintText: 'Arrival Station',
+                              width: double.infinity,
+                              enableSearch: true,
+                              enableFilter: true,
+                              requestFocusOnTap: true,
+                              dropdownMenuEntries: [
+                                for (var station in graphs.keys)
+                                  DropdownMenuEntry(value: station, label: station),
+                              ],
+                              menuStyle: MenuStyle(
+                                maximumSize: MaterialStateProperty.all<Size>(
+                                  Size(300, 400),
+                                ), // width, height
+                              ),
+                              onSelected: (String? text) {
+                                secondStation.value = endStationController.text;
+                                endStationEnable.value = endStationController.text.isNotEmpty;
+                              },
+                            ),
                           ),
-                          onSelected: (String? text) {
-                            secondStation.value = endStationController.text;
-                            showButtonEnable2.value =
-                                endStationController.text.isNotEmpty;
-                          },
-                        ),
-                      ),
-                      Flexible(
-                        flex: 1,
-                        child: Obx(() {
-                          return ElevatedButton(
-                            onPressed: secondStation.value.isNotEmpty
-                                ? () {
-                                    Station currentStation =
-                                        Station.findStationByName(
-                                          secondStation.value,
-                                        );
-                                    final url = Uri.parse(
-                                      'geo:0,0?q=${currentStation.latitude},${currentStation.longitude}',
-                                    );
+                          Obx(() {
+                            return AnimatedOpacity(
+                              opacity: endStationEnable.value ? 1.0 : 0.4,
+                              duration: Duration(milliseconds: 300),
+                              child: IconButton(
+                                  onPressed: endStationEnable.value ? () {
+                                    Station currentStation = Station.findStationByName(secondStation.value,);
+                                    final url = Uri.parse('geo:0,0?q=${currentStation.latitude},${currentStation.longitude}');
                                     // Open the URL in the default browser
                                     launchUrl(url);
-                                  }
-                                : null,
-                            child: Text('On Map'),
-                          );
-                        }),
+                                  } : null,
+                                  icon: Icon(
+                                    Icons.location_on_rounded,
+                                    color: Colors.green,
+                                  )
+                              ),
+                            );
+                          }),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
 
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Obx(() {
-                      return ElevatedButton(
-                        onPressed:
-                            (showButtonEnable1.value && showButtonEnable2.value)
-                            ? () {
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Obx(() {
+                            return ElevatedButton(
+                              onPressed:
+                              (startStationEnable.value && endStationEnable.value)
+                                  ? () {
                                 enabled_3.value = true;
                                 ride = Ride(
                                   firstStation: firstStation.value,
@@ -503,101 +494,101 @@ class _FirstPageState extends State<FirstPage> {
                                 // nearestStation.value = ride.getNearestStation;
                                 findNearStation(false);
                               }
-                            : null,
-                        child: Text('show'),
-                      );
-                    }),
-                    ElevatedButton(
-                      onPressed: () {
-                        // will change the first drop down to the nearest station to the user
-                        findNearStation(true);
-                      },
-                      child: Text('Nearest Station'),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Obx(() {
-                      return Align(
-                        alignment: Alignment.centerLeft,
-                        child: Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                'Time: ${time}\n'
-                                'Count: ${count}\n'
-                                'Ticket: ${ticket}\n'
-                                'Nearest Station: ${nearestStation}',
+                                  : null,
+                              child: Text('show'),
+                            );
+                          }),
+                          ElevatedButton(
+                            onPressed: () {
+                              // will change the first drop down to the nearest station to the user
+                              findNearStation(true);
+                            },
+                            child: Text('Nearest Station'),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Obx(() {
+                            return Align(
+                              alignment: Alignment.centerLeft,
+                              child: Column(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(
+                                      'Time: ${time}\n'
+                                          'Count: ${count}\n'
+                                          'Ticket: ${ticket}\n'
+                                          'Nearest Station: ${nearestStation}',
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }),
-                    Align(
-                      alignment: Alignment.center,
-                      child: Obx(() {
-                        return ElevatedButton(
-                          onPressed: enabled_3.value
-                              ? () {
+                            );
+                          }),
+                          Align(
+                            alignment: Alignment.center,
+                            child: Obx(() {
+                              return ElevatedButton(
+                                onPressed: enabled_3.value
+                                    ? () {
                                   Get.to(
                                     SecondPage(),
                                     arguments: ride,
                                     transition: Transition.rightToLeft,
                                   );
                                 }
-                              : null,
-                          child: Row(
-                            spacing: 8,
-                            children: [
-                              Text('more'),
-                              Icon(Icons.arrow_circle_right_outlined),
-                            ],
+                                    : null,
+                                child: Row(
+                                  spacing: 8,
+                                  children: [
+                                    Text('more'),
+                                    Icon(Icons.arrow_circle_right_outlined),
+                                  ],
+                                ),
+                              );
+                            }),
                           ),
-                        );
-                      }),
-                    ),
-                  ],
-                ),
-                ListTile(
-                  title: Row(
-                    spacing: 8,
-                    children: [
-                      Flexible(
-                        flex: 1, // takes 2 parts of the available space
-                        child: TextField(
-                          controller: destinationController,
-                          decoration: InputDecoration(
-                            labelText: 'Enter your Destination',
-                          ),
-                          onChanged: (String? x) {
-                            enabled_4.value = x != null && x.isNotEmpty;
-                          },
-                        ),
+                        ],
                       ),
-                      SizedBox(width: 8),
-                      Flexible(
-                        flex: 1, // takes 1 part of the space
-                        child: Obx(() {
-                          return ElevatedButton(
-                            onPressed: enabled_4.value
-                                ? () {
-                                    // find the nearest station
-                                    findDestination(destinationController.text);
-                                  }
-                                : null,
-                            child: Text('Show'),
-                          );
-                        }),
+                      ListTile(
+                        title: Row(
+                          spacing: 8,
+                          children: [
+                            Flexible(
+                              flex: 1, // takes 2 parts of the available space
+                              child: TextField(
+                                controller: destinationController,
+                                decoration: InputDecoration(
+                                  labelText: 'Enter your Destination',
+                                ),
+                                onChanged: (String? x) {
+                                  enabled_4.value = x != null && x.isNotEmpty;
+                                },
+                              ),
+                            ),
+                            SizedBox(width: 8),
+                            Obx(() {
+                              return ElevatedButton(
+                                onPressed: enabled_4.value
+                                    ? () {
+                                  // find the nearest station
+                                  findDestination(destinationController.text);
+                                }
+                                    : null,
+                                child: Text('Show'),
+                              );
+                            }),
+                          ],
+                        ),
                       ),
                     ],
                   ),
-                ),
-              ],
-            ),
+                )
+              ),
+            ],
           ),
         ),
       ),
@@ -667,7 +658,7 @@ class _FirstPageState extends State<FirstPage> {
     if (edit) {
       startStationController.text = nearestStation;
       firstStation.value = nearestStation;
-      showButtonEnable1.value = true;
+      startStationEnable.value = true;
     }
     this.nearestStation.value = nearestStation;
   }
@@ -695,6 +686,6 @@ class _FirstPageState extends State<FirstPage> {
     }
     endStationController.text = nearestStation;
     secondStation.value = nearestStation;
-    showButtonEnable2.value = endStationController.text.isNotEmpty;
+    endStationEnable.value = endStationController.text.isNotEmpty;
   }
 }
