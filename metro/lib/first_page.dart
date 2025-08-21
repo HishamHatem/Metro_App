@@ -30,7 +30,6 @@ class _FirstPageState extends State<FirstPage> {
   var endStationEnable = false.obs;
   var isRouteCalculated = false.obs;
   var isDestinationEntered = false.obs;
-  var map_enabled_1 = false.obs;
   var isDarkMode = false.obs;
 
   final graphs = <String, List<String>>{
