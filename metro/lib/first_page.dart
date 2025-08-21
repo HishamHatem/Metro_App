@@ -19,8 +19,8 @@ class _FirstPageState extends State<FirstPage> {
   final startStationController = TextEditingController();
   final endStationController = TextEditingController();
   final destinationController = TextEditingController();
-  var firstStation = ''.obs;
-  var secondStation = ''.obs;
+  var startStation = ''.obs;
+  var endStation = ''.obs;
   var ride = Ride(firstStation: '', secondStation: '');
   var count = 0.obs;
   var time = 0.obs;
@@ -28,10 +28,10 @@ class _FirstPageState extends State<FirstPage> {
   var nearestStation = ''.obs;
   var startStationEnable = false.obs;
   var endStationEnable = false.obs;
-  var enabled_3 = false.obs;
-  var enabled_4 = false.obs;
+  var isRouteCalculated = false.obs;
+  var isDestinationEntered = false.obs;
   var map_enabled_1 = false.obs;
-  var map_enabled_2 = false.obs;
+  var isDarkMode = false.obs;
 
   final graphs = <String, List<String>>{
     "helwan": ["line_1", "ain helwan", "line_1"],
@@ -358,9 +358,37 @@ class _FirstPageState extends State<FirstPage> {
           child: Column(
             spacing: 16,
             children: [
-              SizedBox(
-                height: 100,
-                child: Image.asset('assets/images/background/metro.png'),
+              Row(
+                children: [
+                  Obx((){
+                    return IconButton(
+                      onPressed: () {
+                        // Toggle the dark mode
+                        isDarkMode.value = !isDarkMode.value;
+                        Get.changeThemeMode(isDarkMode.value ? ThemeMode.dark : ThemeMode.light);
+                      },
+                      icon: isDarkMode.value ?
+                      Icon(
+                        Icons.light_mode_outlined,
+                        color: Colors.orangeAccent,
+                      ) :
+                      Icon(
+                        Icons.dark_mode_outlined,
+                        color: Colors.deepPurpleAccent,
+                      ),
+                    );
+                  }),
+                  Expanded(
+                    child: Center(
+                      child: SizedBox(
+                        height: 100,
+                        child: Image.asset('assets/images/background/metro.png'),
+                      ),
+                    ),
+                  ),
+                  // Add an invisible IconButton for symmetry (optional)
+                  SizedBox(width: 48), // Same width as IconButton
+                ],
               ),
               Text(
                 'Metro Guide',
@@ -376,36 +404,44 @@ class _FirstPageState extends State<FirstPage> {
                         children: [
                           Flexible(
                             flex: 1,
-                            child: DropdownMenu<String>(
-                              controller: startStationController,
-                              hintText: 'Departure Station',
-                              width: double.infinity,
-                              enableSearch: true,
-                              enableFilter: true,
-                              requestFocusOnTap: true,
-                              dropdownMenuEntries: [
-                                for (var station in graphs.keys)
-                                  DropdownMenuEntry(value: station, label: station),
-                              ],
-                              menuStyle: MenuStyle(
-                                maximumSize: WidgetStateProperty.all<Size>(
-                                  Size(300, 400),
-                                ), // width, height
-                              ),
-                              onSelected: (String? text) {
-                                firstStation.value = startStationController.text;
-                                if(firstStation.value != '' && graphs.containsKey(firstStation.value)) {
-                                  startStationEnable.value = startStationController.text.isNotEmpty;
-                                } else {
-                                  startStationEnable.value = false;
-                                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                                    startStationController.clear();
-                                    firstStation.value = '';
-                                  });
-                                  Get.snackbar('Error', 'Invalid station selected');
-                                }
-                              },
-                            ),
+                            child: Obx((){
+                              return DropdownMenu<String>(
+                                controller: startStationController,
+                                hintText: 'Departure Station',
+                                width: double.infinity,
+                                enableSearch: true,
+                                enableFilter: true,
+                                requestFocusOnTap: true,
+                                dropdownMenuEntries: [
+                                  for (var station in graphs.keys)
+                                    if(station != endStation.value) // Avoid showing the end station in the start station dropdown
+                                      DropdownMenuEntry(value: station, label: station),
+                                ],
+                                menuStyle: MenuStyle(
+                                  maximumSize: WidgetStateProperty.all<Size>(
+                                    Size(300, 400),
+                                  ), // width, height
+                                ),
+                                onSelected: (String? text) {
+                                  startStation.value = startStationController.text;
+                                  if(startStation.value != '' && graphs.containsKey(startStation.value)) {
+                                    startStationEnable.value = startStationController.text.isNotEmpty;
+                                  } else {
+                                    startStationEnable.value = false;
+
+                                    // Clear the controller and reset the value and wait till this frame finishes rendering
+                                    // not using WidgetsBinding here will cause the controller to not clear
+                                    // till selecting the invalid text for the second time
+                                    // and the value will not reset immediately
+                                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                                      startStationController.clear();
+                                      startStation.value = '';
+                                    });
+                                    Get.snackbar('Error', 'Invalid station selected');
+                                  }
+                                },
+                              );
+                            }),
                           ),
                           Obx(() {
                             return AnimatedOpacity(
@@ -413,7 +449,7 @@ class _FirstPageState extends State<FirstPage> {
                               duration: Duration(milliseconds: 300),
                               child: IconButton(
                                   onPressed: startStationEnable.value ? () {
-                                    Station currentStation = Station.findStationByName(firstStation.value,);
+                                    Station currentStation = Station.findStationByName(startStation.value,);
                                     final url = Uri.parse('geo:0,0?q=${currentStation.latitude},${currentStation.longitude}');
                                     // Open the URL in the default browser
                                     launchUrl(url);
@@ -429,20 +465,24 @@ class _FirstPageState extends State<FirstPage> {
                       ),
 
                       Obx((){
-                        return IconButton(
-                            onPressed: (startStationEnable.value && endStationEnable.value) ? () {
-                              // Swap the values of the two stations
-                              String temp = firstStation.value;
-                              firstStation.value = secondStation.value;
-                              secondStation.value = temp;
+                        return AnimatedOpacity(
+                          opacity: (startStationEnable.value && endStationEnable.value) ? 1.0 : 0.4,
+                          duration: Duration(milliseconds: 300),
+                          child: IconButton(
+                              onPressed: (startStationEnable.value && endStationEnable.value) ? () {
+                                // Swap the values of the two stations
+                                String temp = startStation.value;
+                                startStation.value = endStation.value;
+                                endStation.value = temp;
 
-                              // Update the controllers
-                              startStationController.text = firstStation.value;
-                              endStationController.text = secondStation.value;
-                            } : null,
-                            icon: Icon(
-                              Icons.swap_calls_rounded,
-                            )
+                                // Update the controllers
+                                startStationController.text = startStation.value;
+                                endStationController.text = endStation.value;
+                              } : null,
+                              icon: Icon(
+                                Icons.swap_calls_rounded,
+                              )
+                          ),
                         );
                       }),
 
@@ -451,32 +491,44 @@ class _FirstPageState extends State<FirstPage> {
                         children: [
                           Flexible(
                             flex: 1,
-                            child: DropdownMenu<String>(
-                              controller: endStationController,
-                              hintText: 'Arrival Station',
-                              width: double.infinity,
-                              enableSearch: true,
-                              enableFilter: true,
-                              requestFocusOnTap: true,
-                              dropdownMenuEntries: [
-                                for (var station in graphs.keys)
-                                  DropdownMenuEntry(value: station, label: station),
-                              ],
-                              menuStyle: MenuStyle(
-                                maximumSize: WidgetStateProperty.all<Size>(
-                                  Size(300, 400),
-                                ), // width, height
-                              ),
-                              onSelected: (String? text) {
-                                secondStation.value = endStationController.text;
-                                if(secondStation.value != '' && graphs.containsKey(secondStation.value)) {
-                                  endStationEnable.value = endStationController.text.isNotEmpty;
-                                } else {
-                                  endStationEnable.value = false;
-                                  Get.snackbar('Error', 'Invalid station selected');
-                                }
-                              },
-                            ),
+                            child: Obx((){
+                              return DropdownMenu<String>(
+                                controller: endStationController,
+                                hintText: 'Arrival Station',
+                                width: double.infinity,
+                                enableSearch: true,
+                                enableFilter: true,
+                                requestFocusOnTap: true,
+                                dropdownMenuEntries: [
+                                  for (var station in graphs.keys)
+                                    if(station != startStation.value) // Avoid showing the start station in the end station dropdown
+                                      DropdownMenuEntry(value: station, label: station),
+                                ],
+                                menuStyle: MenuStyle(
+                                  maximumSize: WidgetStateProperty.all<Size>(
+                                    Size(300, 400),
+                                  ), // width, height
+                                ),
+                                onSelected: (String? text) {
+                                  endStation.value = endStationController.text;
+                                  if(endStation.value != '' && graphs.containsKey(endStation.value)) {
+                                    endStationEnable.value = endStationController.text.isNotEmpty;
+                                  } else {
+                                    endStationEnable.value = false;
+
+                                    // Clear the controller and reset the value and wait till this frame finishes rendering
+                                    // not using WidgetsBinding here will cause the controller to not clear
+                                    // till selecting the invalid text for the second time
+                                    // and the value will not reset immediately
+                                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                                      endStationController.clear();
+                                      endStation.value = '';
+                                    });
+                                    Get.snackbar('Error', 'Invalid station selected');
+                                  }
+                                },
+                              );
+                            }),
                           ),
                           Obx(() {
                             return AnimatedOpacity(
@@ -484,7 +536,7 @@ class _FirstPageState extends State<FirstPage> {
                               duration: Duration(milliseconds: 300),
                               child: IconButton(
                                   onPressed: endStationEnable.value ? () {
-                                    Station currentStation = Station.findStationByName(secondStation.value,);
+                                    Station currentStation = Station.findStationByName(endStation.value,);
                                     final url = Uri.parse('geo:0,0?q=${currentStation.latitude},${currentStation.longitude}');
                                     // Open the URL in the default browser
                                     launchUrl(url);
@@ -510,15 +562,15 @@ class _FirstPageState extends State<FirstPage> {
                                 onPressed:
                                 (startStationEnable.value && endStationEnable.value)
                                     ? () {
-                                  enabled_3.value = true;
+                                  isRouteCalculated.value = true;
                                   ride = Ride(
-                                    firstStation: firstStation.value,
-                                    secondStation: secondStation.value,
+                                    firstStation: startStation.value,
+                                    secondStation: endStation.value,
                                   );
 
                                   ride.findPaths(
-                                    firstStation.value,
-                                    secondStation.value,
+                                    startStation.value,
+                                    endStation.value,
                                     graphs,
                                   );
 
@@ -530,7 +582,7 @@ class _FirstPageState extends State<FirstPage> {
                                   findNearStation(false);
                                 }
                                     : null,
-                                child: Text('show'),
+                                child: Text('Find Route'),
                               ),
                             );
                           }),
@@ -555,10 +607,10 @@ class _FirstPageState extends State<FirstPage> {
                                     padding: const EdgeInsets.all(8.0),
                                     child: Text(
                                       'Shortest Path info\n'
-                                      'Time: ${time}\n'
-                                      'Count: ${count}\n'
-                                      'Ticket: ${ticket}\n'
-                                      'Nearest Station: ${nearestStation}',
+                                      'Time: $time\n'
+                                      'Count: $count\n'
+                                      'Ticket: $ticket\n'
+                                      'Nearest Station: $nearestStation',
                                     ),
                                   ),
                                 ],
@@ -568,22 +620,25 @@ class _FirstPageState extends State<FirstPage> {
                           Align(
                             alignment: Alignment.center,
                             child: Obx(() {
-                              return ElevatedButton(
-                                onPressed: enabled_3.value
-                                    ? () {
-                                  Get.to(
-                                    SecondPage(),
-                                    arguments: ride,
-                                    transition: Transition.rightToLeft,
-                                  );
-                                }
-                                    : null,
-                                child: Row(
-                                  spacing: 8,
-                                  children: [
-                                    Text('more'),
-                                    Icon(Icons.arrow_circle_right_outlined),
-                                  ],
+                              return AnimatedOpacity(
+                                opacity: isRouteCalculated.value ? 1.0 : 0.4,
+                                duration: Duration(milliseconds: 300),
+                                child: ElevatedButton(
+                                  onPressed: isRouteCalculated.value
+                                      ? () {
+                                    Get.to(
+                                      SecondPage(),
+                                      arguments: ride,
+                                      transition: Transition.rightToLeft,
+                                    );
+                                  } : null,
+                                  child: Row(
+                                    spacing: 8,
+                                    children: [
+                                      Text('more'),
+                                      Icon(Icons.arrow_circle_right_outlined),
+                                    ],
+                                  ),
                                 ),
                               );
                             }),
@@ -602,20 +657,24 @@ class _FirstPageState extends State<FirstPage> {
                                   labelText: 'Enter your Destination',
                                 ),
                                 onChanged: (String? x) {
-                                  enabled_4.value = x != null && x.isNotEmpty;
+                                  isDestinationEntered.value = x != null && x.isNotEmpty;
                                 },
                               ),
                             ),
-                            SizedBox(width: 8),
+                            SizedBox(width: 5),
                             Obx(() {
-                              return ElevatedButton(
-                                onPressed: enabled_4.value
-                                    ? () {
-                                  // find the nearest station
-                                  findDestination(destinationController.text);
-                                }
-                                    : null,
-                                child: Text('Show'),
+                              return AnimatedOpacity(
+                                opacity: isDestinationEntered.value ? 1.0 : 0.4,
+                                duration: Duration(milliseconds: 300),
+                                child: ElevatedButton(
+                                  onPressed: isDestinationEntered.value
+                                      ? () {
+                                    // find the nearest station
+                                    findDestination(destinationController.text);
+                                  }
+                                      : null,
+                                  child: Text('Nearest Metro'),
+                                ),
                               );
                             }),
                           ],
@@ -694,7 +753,7 @@ class _FirstPageState extends State<FirstPage> {
     }
     if (edit) {
       startStationController.text = nearestStation;
-      firstStation.value = nearestStation;
+      startStation.value = nearestStation;
       startStationEnable.value = true;
     }
     this.nearestStation.value = nearestStation;
@@ -722,7 +781,7 @@ class _FirstPageState extends State<FirstPage> {
       }
     }
     endStationController.text = nearestStation;
-    secondStation.value = nearestStation;
+    endStation.value = nearestStation;
     endStationEnable.value = endStationController.text.isNotEmpty;
   }
 }
