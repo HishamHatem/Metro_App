@@ -7,34 +7,30 @@ class SecondPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ride = Get.arguments;
+    final ride = Get.arguments['paths'];
+    final find = Get.arguments['finder'];
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('All Routes'),
-      ),
+      appBar: AppBar(title: Text('All Routes')),
       body: ListView.builder(
-        itemCount: ride.getAllPaths.length,
+        itemCount: ride.length,
         padding: EdgeInsets.all(10),
         itemBuilder: (BuildContext context, int index) {
           return Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Route ${index+1}',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text('${ride.printSinglePath(index)}'),
-                ),
-              ],
-            );
-          },
-        ),
+                'Route ${index + 1}',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text('${find.printSinglePath(index)}'),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 }

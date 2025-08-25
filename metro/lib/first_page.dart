@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:metro/second_page.dart';
-import 'package:metro/ride.dart';
 import 'package:geolocator/geolocator.dart';
+import 'metro.dart';
 import 'station.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -21,7 +21,6 @@ class _FirstPageState extends State<FirstPage> {
   final destinationController = TextEditingController();
   var startStation = ''.obs;
   var endStation = ''.obs;
-  var ride = Ride(firstStation: '', secondStation: '');
   var count = 0.obs;
   var time = 0.obs;
   var ticket = 0.obs;
@@ -31,313 +30,10 @@ class _FirstPageState extends State<FirstPage> {
   var isRouteCalculated = false.obs;
   var isDestinationEntered = false.obs;
   var isDarkMode = false.obs;
+  // final metro_station = OptimizedMetro.getAllStations();
+  final finder = MetroPathFinder();
 
-  final graphs = <String, List<String>>{
-    "helwan": ["line_1", "ain helwan", "line_1"],
-    "ain helwan": ["line_1", "helwan", "line_1", "helwan university", "line_1"],
-    "helwan university": [
-      "line_1",
-      "ain helwan",
-      "line_1",
-      "wadi hof",
-      "line_1",
-    ],
-    "wadi hof": [
-      "line_1",
-      "helwan university",
-      "line_1",
-      "hadayek helwan",
-      "line_1",
-    ],
-    "hadayek helwan": ["line_1", "wadi hof", "line_1", "elmaasara", "line_1"],
-    "elmaasara": [
-      "line_1",
-      "hadayek helwan",
-      "line_1",
-      "tora elasmant",
-      "line_1",
-    ],
-    "tora elasmant": ["line_1", "elmaasara", "line_1", "kozzika", "line_1"],
-    "kozzika": ["line_1", "tora elasmant", "line_1", "tora elbalad", "line_1"],
-    "tora elbalad": [
-      "line_1",
-      "kozzika",
-      "line_1",
-      "sakanat elmaadi",
-      "line_1",
-    ],
-    "sakanat elmaadi": ["line_1", "tora elbalad", "line_1", "maadi", "line_1"],
-    "maadi": [
-      "line_1",
-      "sakanat elmaadi",
-      "line_1",
-      "hadayek elmaadi",
-      "line_1",
-    ],
-    "hadayek elmaadi": ["line_1", "maadi", "line_1", "dar elsalam", "line_1"],
-    "dar elsalam": [
-      "line_1",
-      "hadayek elmaadi",
-      "line_1",
-      "elzahraa",
-      "line_1",
-    ],
-    "elzahraa": ["line_1", "dar elsalam", "line_1", "mar girgis", "line_1"],
-    "mar girgis": ["line_1", "elzahraa", "line_1", "elmalek elsaleh", "line_1"],
-    "elmalek elsaleh": [
-      "line_1",
-      "mar girgis",
-      "line_1",
-      "alsayeda zeinab",
-      "line_1",
-    ],
-    "alsayeda zeinab": [
-      "line_1",
-      "elmalek elsaleh",
-      "line_1",
-      "saad zaghloul",
-      "line_1",
-    ],
-    "saad zaghloul": ["line_1", "alsayeda zeinab", "line_1", "sadat", "line_1"],
-    "sadat": [
-      "line_1", //more than line unhandeled
-      "saad zaghloul",
-      "line_1",
-      "gamal abdel nasser",
-      "line_1",
-      "mohamed naguib",
-      "line_2",
-      "opera",
-      "line_2",
-    ],
-    "gamal abdel nasser": [
-      "line_1", //more than line unhandeled
-      "sadat",
-      "line_1",
-      "orabi",
-      "line_1",
-      "attaba",
-      "line_3",
-      "maspero",
-      "line_3",
-    ],
-    "orabi": ["line_1", "gamal abdel nasser", "line_1", "alshohadaa", "line_1"],
-    "alshohadaa": [
-      "line_1", //more than line unhandeled
-      "orabi",
-      "line_1",
-      "ghamra",
-      "line_1",
-      "masarra",
-      "line_2",
-      "attaba",
-      "line_2",
-    ],
-    "ghamra": ["line_1", "alshohadaa", "line_1", "eldemerdash", "line_1"],
-    "eldemerdash": ["line_1", "ghamra", "line_1", "manshiet elsadr", "line_1"],
-    "manshiet elsadr": [
-      "line_1",
-      "eldemerdash",
-      "line_1",
-      "kobri elqobba",
-      "line_1",
-    ],
-    "kobri elqobba": [
-      "line_1",
-      "manshiet elsadr",
-      "line_1",
-      "hammamat elqobba",
-      "line_1",
-    ],
-    "hammamat elqobba": [
-      "line_1",
-      "kobri elqobba",
-      "line_1",
-      "saray elqobba",
-      "line_1",
-    ],
-    "saray elqobba": [
-      "line_1",
-      "hammamat elqobba",
-      "line_1",
-      "hadayek elzaitoun",
-      "line_1",
-    ],
-    "hadayek elzaitoun": [
-      "line_1",
-      "saray elqobba",
-      "line_1",
-      "helmeyet elzaitoun",
-      "line_1",
-    ],
-    "helmeyet elzaitoun": [
-      "line_1",
-      "hadayek elzaitoun",
-      "line_1",
-      "elmatareyya",
-      "line_1",
-    ],
-    "elmatareyya": [
-      "line_1",
-      "helmeyet elzaitoun",
-      "line_1",
-      "ain shams",
-      "line_1",
-    ],
-    "ain shams": ["line_1", "elmatareyya", "line_1", "ezbet elnakhl", "line_1"],
-    "ezbet elnakhl": ["line_1", "ain shams", "line_1", "elmarg", "line_1"],
-    "elmarg": ["line_1", "ezbet elnakhl", "line_1", "new elmarg", "line_1"],
-    "new elmarg": ["line_1", "elmarg", "line_1"],
-    "shubra elkheima": ["line_2", "kolleyyet elzeraa", "line_2"],
-    "kolleyyet elzeraa": [
-      "line_2",
-      "shubra elkheima",
-      "line_2",
-      "mezallat",
-      "line_2",
-    ],
-    "mezallat": [
-      "line_2",
-      "kolleyyet elzeraa",
-      "line_2",
-      "khalafawy",
-      "line_2",
-    ],
-    "khalafawy": ["line_2", "mezallat", "line_2", "st. teresa", "line_2"],
-    "st. teresa": ["line_2", "khalafawy", "line_2", "rod elfarag", "line_2"],
-    "rod elfarag": ["line_2", "st. teresa", "line_2", "masarra", "line_2"],
-    "masarra": ["line_2", "rod elfarag", "line_2", "alshohadaa", "line_2"],
-    "attaba": [
-      "line_2", //more than line unhandeled
-      "alshohadaa",
-      "line_2",
-      "mohamed naguib",
-      "line_2",
-      "bab elshaariya",
-      "line_3",
-      "gamal abdel nasser",
-      "line_3",
-    ],
-    "mohamed naguib": ["line_2", "attaba", "line_2", "sadat", "line_2"],
-    "opera": ["line_2", "sadat", "line_2", "dokki", "line_2"],
-    "dokki": ["line_2", "opera", "line_2", "el bohoth", "line_2"],
-    "el bohoth": ["line_2", "dokki", "line_2", "cairo university", "line_2"],
-    "cairo university": [
-      "line_2",
-      "el bohoth",
-      "line_2",
-      "faisal",
-      "line_2",
-      "boulak el dakrour",
-      "line_3",
-    ],
-    "faisal": ["line_2", "cairo university", "line_2", "giza", "line_2"],
-    "giza": ["line_2", "faisal", "line_2", "omm elmasryeen", "line_2"],
-    "omm elmasryeen": ["line_2", "giza", "line_2", "sakiat mekky", "line_2"],
-    "sakiat mekky": [
-      "line_2",
-      "omm elmasryeen",
-      "line_2",
-      "elmounib",
-      "line_2",
-    ],
-    "elmounib": ["line_2", "sakiat mekky", "line_2"],
-    "adly mansour": ["line_3", "elhaykestep", "line_3"],
-    "elhaykestep": [
-      "line_3",
-      "adly mansour",
-      "line_3",
-      "omar ibn elkhattab",
-      "line_3",
-    ],
-    "omar ibn elkhattab": [
-      "line_3",
-      "elhaykestep",
-      "line_3",
-      "qubaa",
-      "line_3",
-    ],
-    "qubaa": [
-      "line_3",
-      "omar ibn elkhattab",
-      "line_3",
-      "hesham barakat",
-      "line_3",
-    ],
-    "hesham barakat": ["line_3", "qubaa", "line_3", "elnozha", "line_3"],
-    "elnozha": [
-      "line_3",
-      "hesham barakat",
-      "line_3",
-      "el shams club",
-      "line_3",
-    ],
-    "el shams club": ["line_3", "elnozha", "line_3", "alf masken", "line_3"],
-    "alf masken": ["line_3", "el shams club", "line_3", "heliopolis", "line_3"],
-    "heliopolis": ["line_3", "alf masken", "line_3", "haroun", "line_3"],
-    "haroun": ["line_3", "heliopolis", "line_3", "alahram", "line_3"],
-    "alahram": ["line_3", "haroun", "line_3", "koleyet elbanat", "line_3"],
-    "koleyet elbanat": ["line_3", "alahram", "line_3", "stadium", "line_3"],
-    "stadium": ["line_3", "koleyet elbanat", "line_3", "fair zone", "line_3"],
-    "fair zone": ["line_3", "stadium", "line_3", "abbassiya", "line_3"],
-    "abbassiya": ["line_3", "fair zone", "line_3", "abdou pasha", "line_3"],
-    "abdou pasha": ["line_3", "abbassiya", "line_3", "elgeish", "line_3"],
-    "elgeish": ["line_3", "abdou pasha", "line_3", "bab elshaariya", "line_3"],
-    "bab elshaariya": ["line_3", "elgeish", "line_3", "attaba", "line_3"],
-    "maspero": [
-      "line_3",
-      "gamal abdel nasser",
-      "line_3",
-      "safaa hijazy",
-      "line_3",
-    ],
-    "safaa hijazy": ["line_3", "maspero", "line_3", "kit kat", "line_3"],
-    "kit kat": [
-      "line_3",
-      "safaa hijazy",
-      "line_3",
-      "sudan",
-      "line_3",
-      "tawfikia",
-      "line_3",
-    ],
-    "sudan": ["line_3", "kit kat", "line_3", "imbaba", "line_3"],
-    "imbaba": ["line_3", "sudan", "line_3", "elbohy", "line_3"],
-    "elbohy": ["line_3", "imbaba", "line_3", "elqawmia", "line_3"],
-    "elqawmia": ["line_3", "elbohy", "line_3", "ring road", "line_3"],
-    "ring road": [
-      "line_3",
-      "elqawmia",
-      "line_3",
-      "rod elfarag corridor",
-      "line_3",
-    ],
-    "rod elfarag corridor": ["line_3", "ring road", "line_3"],
-    "tawfikia": ["line_3", "kit kat", "line_3", "wadi el nile", "line_3"],
-    "wadi el nile": [
-      "line_3",
-      "tawfikia",
-      "line_3",
-      "gamet el dowal",
-      "line_3",
-    ],
-    "gamet el dowal": [
-      "line_3",
-      "wadi el nile",
-      "line_3",
-      "boulak el dakrour",
-      "line_3",
-    ],
-    "boulak el dakrour": [
-      "line_3",
-      "gamet el dowal",
-      "line_3",
-      "cairo university",
-      "line_3",
-    ],
-  };
   List<List<String>> paths = [];
-
   @override
   void dispose() {
     // TODO: implement dispose
@@ -359,29 +55,33 @@ class _FirstPageState extends State<FirstPage> {
             children: [
               Row(
                 children: [
-                  Obx((){
+                  Obx(() {
                     return IconButton(
                       onPressed: () {
                         // Toggle the dark mode
                         isDarkMode.value = !isDarkMode.value;
-                        Get.changeThemeMode(isDarkMode.value ? ThemeMode.dark : ThemeMode.light);
+                        Get.changeThemeMode(
+                          isDarkMode.value ? ThemeMode.dark : ThemeMode.light,
+                        );
                       },
-                      icon: isDarkMode.value ?
-                      Icon(
-                        Icons.light_mode_outlined,
-                        color: Colors.orangeAccent,
-                      ) :
-                      Icon(
-                        Icons.dark_mode_outlined,
-                        color: Colors.deepPurpleAccent,
-                      ),
+                      icon: isDarkMode.value
+                          ? Icon(
+                              Icons.light_mode_outlined,
+                              color: Colors.orangeAccent,
+                            )
+                          : Icon(
+                              Icons.dark_mode_outlined,
+                              color: Colors.deepPurpleAccent,
+                            ),
                     );
                   }),
                   Expanded(
                     child: Center(
                       child: SizedBox(
                         height: 100,
-                        child: Image.asset('assets/images/background/metro.png'),
+                        child: Image.asset(
+                          'assets/images/background/metro.png',
+                        ),
                       ),
                     ),
                   ),
@@ -403,7 +103,7 @@ class _FirstPageState extends State<FirstPage> {
                         children: [
                           Flexible(
                             flex: 1,
-                            child: Obx((){
+                            child: Obx(() {
                               return DropdownMenu<String>(
                                 controller: startStationController,
                                 hintText: 'Departure Station',
@@ -412,9 +112,15 @@ class _FirstPageState extends State<FirstPage> {
                                 enableFilter: true,
                                 requestFocusOnTap: true,
                                 dropdownMenuEntries: [
-                                  for (var station in graphs.keys)
-                                    if(station != endStation.value) // Avoid showing the end station in the start station dropdown
-                                      DropdownMenuEntry(value: station, label: station),
+                                  for (var station
+                                      in OptimizedMetro.getAllStations())
+                                    if (station !=
+                                        endStation
+                                            .value) // Avoid showing the end station in the start station dropdown
+                                      DropdownMenuEntry(
+                                        value: station,
+                                        label: station,
+                                      ),
                                 ],
                                 menuStyle: MenuStyle(
                                   maximumSize: WidgetStateProperty.all<Size>(
@@ -422,9 +128,14 @@ class _FirstPageState extends State<FirstPage> {
                                   ), // width, height
                                 ),
                                 onSelected: (String? text) {
-                                  startStation.value = startStationController.text;
-                                  if(startStation.value != '' && graphs.containsKey(startStation.value)) {
-                                    startStationEnable.value = startStationController.text.isNotEmpty;
+                                  startStation.value =
+                                      startStationController.text;
+                                  if (startStation.value != '' &&
+                                      OptimizedMetro.getAllStations().contains(
+                                        startStation.value,
+                                      )) {
+                                    startStationEnable.value =
+                                        startStationController.text.isNotEmpty;
                                   } else {
                                     startStationEnable.value = false;
 
@@ -432,11 +143,15 @@ class _FirstPageState extends State<FirstPage> {
                                     // not using WidgetsBinding here will cause the controller to not clear
                                     // till selecting the invalid text for the second time
                                     // and the value will not reset immediately
-                                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                                      startStationController.clear();
-                                      startStation.value = '';
-                                    });
-                                    Get.snackbar('Error', 'Invalid station selected');
+                                    WidgetsBinding.instance
+                                        .addPostFrameCallback((_) {
+                                          startStationController.clear();
+                                          startStation.value = '';
+                                        });
+                                    Get.snackbar(
+                                      'Error',
+                                      'Invalid station selected',
+                                    );
                                   }
                                 },
                               );
@@ -447,40 +162,55 @@ class _FirstPageState extends State<FirstPage> {
                               opacity: startStationEnable.value ? 1.0 : 0.4,
                               duration: Duration(milliseconds: 300),
                               child: IconButton(
-                                  onPressed: startStationEnable.value ? () {
-                                    Station currentStation = Station.findStationByName(startStation.value,);
-                                    final url = Uri.parse('geo:0,0?q=${currentStation.latitude},${currentStation.longitude}');
-                                    // Open the URL in the default browser
-                                    launchUrl(url);
-                                  } : null,
-                                  icon: Icon(
-                                    Icons.location_on_rounded,
-                                    color: Colors.green,
-                                  )
+                                onPressed: startStationEnable.value
+                                    ? () {
+                                        Station currentStation =
+                                            Station.findStationByName(
+                                              startStation.value,
+                                            );
+                                        final url = Uri.parse(
+                                          'geo:0,0?q=${currentStation.latitude},${currentStation.longitude}',
+                                        );
+                                        // Open the URL in the default browser
+                                        launchUrl(url);
+                                      }
+                                    : null,
+                                icon: Icon(
+                                  Icons.location_on_rounded,
+                                  color: Colors.green,
+                                ),
                               ),
                             );
                           }),
                         ],
                       ),
 
-                      Obx((){
+                      Obx(() {
                         return AnimatedOpacity(
-                          opacity: (startStationEnable.value && endStationEnable.value) ? 1.0 : 0.4,
+                          opacity:
+                              (startStationEnable.value &&
+                                  endStationEnable.value)
+                              ? 1.0
+                              : 0.4,
                           duration: Duration(milliseconds: 300),
                           child: IconButton(
-                              onPressed: (startStationEnable.value && endStationEnable.value) ? () {
-                                // Swap the values of the two stations
-                                String temp = startStation.value;
-                                startStation.value = endStation.value;
-                                endStation.value = temp;
+                            onPressed:
+                                (startStationEnable.value &&
+                                    endStationEnable.value)
+                                ? () {
+                                    // Swap the values of the two stations
+                                    String temp = startStation.value;
+                                    startStation.value = endStation.value;
+                                    endStation.value = temp;
 
-                                // Update the controllers
-                                startStationController.text = startStation.value;
-                                endStationController.text = endStation.value;
-                              } : null,
-                              icon: Icon(
-                                Icons.swap_calls_rounded,
-                              )
+                                    // Update the controllers
+                                    startStationController.text =
+                                        startStation.value;
+                                    endStationController.text =
+                                        endStation.value;
+                                  }
+                                : null,
+                            icon: Icon(Icons.swap_calls_rounded),
                           ),
                         );
                       }),
@@ -490,7 +220,7 @@ class _FirstPageState extends State<FirstPage> {
                         children: [
                           Flexible(
                             flex: 1,
-                            child: Obx((){
+                            child: Obx(() {
                               return DropdownMenu<String>(
                                 controller: endStationController,
                                 hintText: 'Arrival Station',
@@ -499,9 +229,15 @@ class _FirstPageState extends State<FirstPage> {
                                 enableFilter: true,
                                 requestFocusOnTap: true,
                                 dropdownMenuEntries: [
-                                  for (var station in graphs.keys)
-                                    if(station != startStation.value) // Avoid showing the start station in the end station dropdown
-                                      DropdownMenuEntry(value: station, label: station),
+                                  for (var station
+                                      in OptimizedMetro.getAllStations())
+                                    if (station !=
+                                        startStation
+                                            .value) // Avoid showing the start station in the end station dropdown
+                                      DropdownMenuEntry(
+                                        value: station,
+                                        label: station,
+                                      ),
                                 ],
                                 menuStyle: MenuStyle(
                                   maximumSize: WidgetStateProperty.all<Size>(
@@ -510,8 +246,12 @@ class _FirstPageState extends State<FirstPage> {
                                 ),
                                 onSelected: (String? text) {
                                   endStation.value = endStationController.text;
-                                  if(endStation.value != '' && graphs.containsKey(endStation.value)) {
-                                    endStationEnable.value = endStationController.text.isNotEmpty;
+                                  if (endStation.value != '' &&
+                                      OptimizedMetro.getAllStations().contains(
+                                        endStation.value,
+                                      )) {
+                                    endStationEnable.value =
+                                        endStationController.text.isNotEmpty;
                                   } else {
                                     endStationEnable.value = false;
 
@@ -519,11 +259,15 @@ class _FirstPageState extends State<FirstPage> {
                                     // not using WidgetsBinding here will cause the controller to not clear
                                     // till selecting the invalid text for the second time
                                     // and the value will not reset immediately
-                                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                                      endStationController.clear();
-                                      endStation.value = '';
-                                    });
-                                    Get.snackbar('Error', 'Invalid station selected');
+                                    WidgetsBinding.instance
+                                        .addPostFrameCallback((_) {
+                                          endStationController.clear();
+                                          endStation.value = '';
+                                        });
+                                    Get.snackbar(
+                                      'Error',
+                                      'Invalid station selected',
+                                    );
                                   }
                                 },
                               );
@@ -534,16 +278,23 @@ class _FirstPageState extends State<FirstPage> {
                               opacity: endStationEnable.value ? 1.0 : 0.4,
                               duration: Duration(milliseconds: 300),
                               child: IconButton(
-                                  onPressed: endStationEnable.value ? () {
-                                    Station currentStation = Station.findStationByName(endStation.value,);
-                                    final url = Uri.parse('geo:0,0?q=${currentStation.latitude},${currentStation.longitude}');
-                                    // Open the URL in the default browser
-                                    launchUrl(url);
-                                  } : null,
-                                  icon: Icon(
-                                    Icons.location_on_rounded,
-                                    color: Colors.green,
-                                  )
+                                onPressed: endStationEnable.value
+                                    ? () {
+                                        Station currentStation =
+                                            Station.findStationByName(
+                                              endStation.value,
+                                            );
+                                        final url = Uri.parse(
+                                          'geo:0,0?q=${currentStation.latitude},${currentStation.longitude}',
+                                        );
+                                        // Open the URL in the default browser
+                                        launchUrl(url);
+                                      }
+                                    : null,
+                                icon: Icon(
+                                  Icons.location_on_rounded,
+                                  color: Colors.green,
+                                ),
                               ),
                             );
                           }),
@@ -555,31 +306,44 @@ class _FirstPageState extends State<FirstPage> {
                         children: [
                           Obx(() {
                             return AnimatedOpacity(
-                              opacity: (startStationEnable.value && endStationEnable.value) ? 1.0 : 0.4,
+                              opacity:
+                                  (startStationEnable.value &&
+                                      endStationEnable.value)
+                                  ? 1.0
+                                  : 0.4,
                               duration: Duration(milliseconds: 300),
                               child: ElevatedButton(
                                 onPressed:
-                                (startStationEnable.value && endStationEnable.value)
+                                    (startStationEnable.value &&
+                                        endStationEnable.value)
                                     ? () {
-                                  isRouteCalculated.value = true;
-                                  ride = Ride(
-                                    firstStation: startStation.value,
-                                    secondStation: endStation.value,
-                                  );
+                                        isRouteCalculated.value = true;
+                                        // ride = Ride(
+                                        //   firstStation: startStation.value,
+                                        //   secondStation: endStation.value,
+                                        // );
+                                        //
+                                        // ride.findPaths(
+                                        //   startStation.value,
+                                        //   endStation.value,
+                                        //   graphs,
+                                        // );
+                                        //
+                                        finder.findPaths(
+                                          startStation.value,
+                                          endStation.value,
+                                        );
+                                        paths = finder.allPaths;
+                                        time.value = finder.time;
+                                        count.value = finder.count;
+                                        ticket.value = finder.ticket;
+                                        print(
+                                          '${time.value}, ${count.value}, ${ticket.value}',
+                                        );
+                                        // nearestStation.value = ride.getNearestStation;
 
-                                  ride.findPaths(
-                                    startStation.value,
-                                    endStation.value,
-                                    graphs,
-                                  );
-
-                                  paths = ride.getAllPaths;
-                                  time.value = ride.getTime;
-                                  count.value = ride.getCount;
-                                  ticket.value = ride.getTicket;
-                                  // nearestStation.value = ride.getNearestStation;
-                                  findNearStation(false);
-                                }
+                                        findNearStation(false);
+                                      }
                                     : null,
                                 child: Text('Find Route'),
                               ),
@@ -625,12 +389,16 @@ class _FirstPageState extends State<FirstPage> {
                                 child: ElevatedButton(
                                   onPressed: isRouteCalculated.value
                                       ? () {
-                                    Get.to(
-                                      SecondPage(),
-                                      arguments: ride,
-                                      transition: Transition.rightToLeft,
-                                    );
-                                  } : null,
+                                          Get.to(
+                                            SecondPage(),
+                                            arguments: {
+                                              'paths': paths,
+                                              'finder': finder,
+                                            },
+                                            transition: Transition.rightToLeft,
+                                          );
+                                        }
+                                      : null,
                                   child: Row(
                                     spacing: 8,
                                     children: [
@@ -656,7 +424,8 @@ class _FirstPageState extends State<FirstPage> {
                                   labelText: 'Enter your Destination',
                                 ),
                                 onChanged: (String? x) {
-                                  isDestinationEntered.value = x != null && x.isNotEmpty;
+                                  isDestinationEntered.value =
+                                      x != null && x.isNotEmpty;
                                 },
                               ),
                             ),
@@ -668,9 +437,11 @@ class _FirstPageState extends State<FirstPage> {
                                 child: ElevatedButton(
                                   onPressed: isDestinationEntered.value
                                       ? () {
-                                    // find the nearest station
-                                    findDestination(destinationController.text);
-                                  }
+                                          // find the nearest station
+                                          findDestination(
+                                            destinationController.text,
+                                          );
+                                        }
                                       : null,
                                   child: Text('Nearest Metro'),
                                 ),
@@ -681,7 +452,7 @@ class _FirstPageState extends State<FirstPage> {
                       ),
                     ],
                   ),
-                )
+                ),
               ),
             ],
           ),
