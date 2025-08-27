@@ -30,10 +30,10 @@ class _FirstPageState extends State<FirstPage> {
   var isRouteCalculated = false.obs;
   var isDestinationEntered = false.obs;
   var isDarkMode = false.obs;
-  // final metro_station = OptimizedMetro.getAllStations();
-  final finder = MetroPathFinder();
+  final metro_station = UltraLightMetro.getAllStationNames();
+  final finder = UltraFastPathFinder();
 
-  List<List<String>> paths = [];
+  List<List<int>> paths = [];
   @override
   void dispose() {
     // TODO: implement dispose
@@ -112,8 +112,7 @@ class _FirstPageState extends State<FirstPage> {
                                 enableFilter: true,
                                 requestFocusOnTap: true,
                                 dropdownMenuEntries: [
-                                  for (var station
-                                      in OptimizedMetro.getAllStations())
+                                  for (var station in metro_station)
                                     if (station !=
                                         endStation
                                             .value) // Avoid showing the end station in the start station dropdown
@@ -131,7 +130,7 @@ class _FirstPageState extends State<FirstPage> {
                                   startStation.value =
                                       startStationController.text;
                                   if (startStation.value != '' &&
-                                      OptimizedMetro.getAllStations().contains(
+                                      metro_station.contains(
                                         startStation.value,
                                       )) {
                                     startStationEnable.value =
@@ -229,8 +228,7 @@ class _FirstPageState extends State<FirstPage> {
                                 enableFilter: true,
                                 requestFocusOnTap: true,
                                 dropdownMenuEntries: [
-                                  for (var station
-                                      in OptimizedMetro.getAllStations())
+                                  for (var station in metro_station)
                                     if (station !=
                                         startStation
                                             .value) // Avoid showing the start station in the end station dropdown
@@ -247,7 +245,7 @@ class _FirstPageState extends State<FirstPage> {
                                 onSelected: (String? text) {
                                   endStation.value = endStationController.text;
                                   if (endStation.value != '' &&
-                                      OptimizedMetro.getAllStations().contains(
+                                      metro_station.contains(
                                         endStation.value,
                                       )) {
                                     endStationEnable.value =
@@ -330,8 +328,12 @@ class _FirstPageState extends State<FirstPage> {
                                         // );
                                         //
                                         finder.findPaths(
-                                          startStation.value,
-                                          endStation.value,
+                                          UltraLightMetro.getStationIndex(
+                                            startStation.value,
+                                          ),
+                                          UltraLightMetro.getStationIndex(
+                                            endStation.value,
+                                          ),
                                         );
                                         paths = finder.allPaths;
                                         time.value = finder.time;
